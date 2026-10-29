@@ -4,8 +4,10 @@ The English development guide appears first. The Chinese version follows below.
 
 ## Confirmed scope
 
-The user approved this plan in the project conversation and will act as the independent
-acceptance reviewer. Independent acceptance has not yet been performed.
+The user approved this plan in the project conversation. Under the assignments confirmed on
+2026-10-30, Zefeng Chen owns requirements and code integration, Haoyu Shen owns independent
+testing, and Xuanyu Lu owns final independent acceptance. Acceptance has not yet been recorded.
+See [team assignments](process/sprint1-team-plan.md).
 Baseline commit: `90e34d49742852cd70b8ec506ba0ffaa1fe1bf90`.
 
 As an Agent developer, I want to check whether a claim agrees with actual SQL results
@@ -167,7 +169,9 @@ and the Sprint retrospective as those activities occur.
 
 ## 已确认的范围
 
-用户已在对话中确认本方案，并担任独立验收人；成员验收尚未执行。
+用户已在对话中确认本方案。根据 2026-10-30 确认的分工，Zefeng Chen 负责需求与代码集成，
+Haoyu Shen 负责独立测试，Xuanyu Lu 负责最终独立验收；尚无验收完成记录。
+详见[团队分工](process/sprint1-team-plan.md)。
 基线提交：`90e34d49742852cd70b8ec506ba0ffaa1fe1bf90`。
 
 作为 Agent 开发者，我希望在固定销售案例中查看声明与实际 SQL 结果是否一致，
