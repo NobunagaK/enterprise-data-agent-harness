@@ -13,6 +13,14 @@ def validate_growth(run_id: str, claim: Claim | None, evidence: list[Evidence]) 
             claimed_value=claim.claimed_value if claim else None,
         )
 
+    def tool_error(reason: str) -> ValidationResult:
+        # Our own plumbing changing must never look like missing business data.
+        return ValidationResult(
+            status="tool_error",
+            reason=reason,
+            claimed_value=claim.claimed_value if claim else None,
+        )
+
     if claim is None:
         return unknown("missing_claim")
     matches = [e for e in evidence if e.id == claim.evidence_id and e.run_id == run_id]
@@ -39,8 +47,15 @@ def validate_growth(run_id: str, claim: Claim | None, evidence: list[Evidence]) 
         ):
             return unknown("evidence_scope_mismatch")
         value = row.get("amount_cents")
-        if type(value) is not int:
+        if value is None:
             return unknown("missing_or_invalid_amount")
+        if isinstance(value, bool) or not isinstance(value, (int, Decimal, float)):
+            return tool_error("evidence_type_drift")
+        if isinstance(value, float) and not value.is_integer():
+            return unknown("non_integral_amount")
+        if isinstance(value, Decimal) and value != value.to_integral_value():
+            return unknown("non_integral_amount")
+        value = int(value)
         if value < 0:
             return unknown("negative_amount_unsupported")
         amounts[year] = Decimal(value)

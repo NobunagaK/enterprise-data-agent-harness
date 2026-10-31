@@ -271,3 +271,27 @@ async def test_api_and_persistence(tmp_path):
         restored = await store.get(session, report["id"])
         assert restored.model_dump(mode="json") == report
     await reopened.dispose()
+
+@pytest.mark.parametrize("amount", [Decimal(10000), 10000.0])
+def test_integral_numeric_type_variants_are_accepted(amount):
+    item = evidence()
+    item.rows[0]["amount_cents"] = amount
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "passed"
+
+
+def test_foreign_amount_type_is_tool_error_not_missing_data():
+    item = evidence()
+    item.rows[0]["amount_cents"] = "10000"
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "tool_error"
+    assert result.reason == "evidence_type_drift"
+
+
+def test_fractional_cent_is_unverifiable():
+    item = evidence()
+    item.rows[0]["amount_cents"] = Decimal("10000.5")
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "unverifiable"
+    assert result.reason == "non_integral_amount"
+

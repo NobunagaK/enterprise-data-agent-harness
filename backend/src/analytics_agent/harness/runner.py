@@ -30,7 +30,7 @@ def query_sales(run: Run) -> Evidence:
     step = Step(kind="query")
     run.steps.append(step)
     try:
-        with tempfile.TemporaryDirectory(prefix="harness-sales-") as directory:
+        with tempfile.TemporaryDirectory(prefix="harness-sales-", ignore_cleanup_errors=True) as directory:
             db = Path(directory) / "sales.db"
             with sqlite3.connect(db) as conn:
                 conn.execute(
