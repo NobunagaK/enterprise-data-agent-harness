@@ -2,7 +2,7 @@
 
 - **Reviewer:** Zikai He (C) · **Date:** 2026-10-31
 - **Reviewed:** `sprint1/harness` @ `494388a` (PR #1) — `harness/validation.py`, `harness/models.py`, `harness/runner.py`, `harness/store.py`, `api/harness.py`, `tests/unit/test_harness.py`, `docs/sprint1.md`, `docs/design/sprint1-requirements-design.md`, `docs/process/sprint1-debt-risk-register.md`
-- **Method:** line-by-line read of the rule; hand computation of 12 cases; the rule's arithmetic was re-executed in isolation (Decimal, `prec=60`, same expressions as `validation.py`) to confirm every number below. The application test suite was **not** run by this review (environment dependencies); that is D's task (S1-T04).
+- **Method:** line-by-line read of the rule; hand computation of 12 cases; the rule's arithmetic was re-executed in isolation (Decimal, `prec=60`, same expressions as `validation.py`) to confirm every number below. The harness suite was then **run on Windows 11** (Python 3.11.15, fresh venv, SQLAlchemy 2.x): **26 passed / 4 failed** - the four failures are F-09.
 - **AI assistance disclosure:** this review was drafted with an AI coding agent under the reviewer's direction. Every finding, number and code suggestion below must be re-verified by the reviewer before it is treated as an accepted human judgement.
 
 Scope of S1-T03 per the team plan: *Decimal, units, tolerance, evidence association and unsupported inputs; propose counterexamples; implement necessary validator fixes.*
@@ -92,6 +92,15 @@ Severity uses the register's own scale: **P1** threatens core acceptance, **P2**
 - **Consequence:** F-01 and F-04 cannot be resolved by code alone — they are metric definitions. Without this file, Sprint 2's numbers have no fixed meaning and the report's evaluation section has no source of truth.
 - **Proposed disposition:** add `docs/evaluation/contract-v0.1.md` before any Sprint 2 measurement, listing the case set, denominators, thresholds and the tolerance formula chosen in F-01.
 
+### F-09 · P1 · The fixed-case path fails on Windows: the temp SQLite file is still open at cleanup
+
+- **Where:** `runner.py:33` `with tempfile.TemporaryDirectory(prefix="harness-sales-") as directory:`
+- **Observation (reproduced):** running the suite on Windows 11 / Python 3.11.15 gives **26 passed, 4 failed**. All four failures are on the `execute()` path: `test_real_query_path`, `test_validator_error_is_not_claim_failure`, `test_real_agent_loop_with_local_model_double`, `test_api_and_persistence`.
+- **Root cause:** `query_sales` succeeds - `Evidence` with rows 10000/11000 is appended - then `TemporaryDirectory.__exit__` raises `PermissionError: [WinError 32] ... 'sales.db'` because the SQLite handle is still open. The bare `except Exception` in `query_sales` converts that into `step.error = "query_failed"`, so the run ends `tool_error(query_failed)` **after the evidence was captured**.
+- **Consequence:** on Windows the Sprint 1 demo produces zero valid verdicts. It is invisible on Linux/macOS, which is where the reported 30 green tests came from, and `M5 execution completeness` still looks healthy because `tool_error` is a terminal state.
+- **Verified fix:** `TemporaryDirectory(prefix="harness-sales-", ignore_cleanup_errors=True)` → **30 passed, 0 failed** on the same machine. A stricter alternative is to dispose the engine and retry the delete, or to build the fixture DB once per process; either way it needs a regression test that exercises the real query path on Windows (D owns the test matrix).
+- **Severity:** P1 - the feature is unusable on a supported developer platform, and the failure is silent at the metric level.
+
 ---
 
 ## 3. Hand-checked case table (S1-T03 deliverable)
@@ -164,6 +173,7 @@ The first test is expected to be **red until F-01 is decided**; that is the poin
 | DEC-01 | Decision needed | P2 | A / F | Fix metric denominators, incl. broken evidence links (F-04, F-08) |
 | LIM-01 | Documented limitation | P1 | A / F | Real-model mode does not execute the model's own SQL (F-05) |
 | TD-02 (existing) | Re-label defect + debt | P1 | B / D | Stale `running` reconciliation; ties to completeness acceptance (F-06) |
+| DEF-03 | Defect (portability) | P1 | B / D | Windows temp-file lock breaks every run (F-09); verify with `ignore_cleanup_errors=True` and add a Windows regression test |
 | PROC-01 | Process gap | P3 | A | Enable Issues / branch protection; add the evaluation contract to the repo (F-07, F-08) |
 
 ---
@@ -177,5 +187,7 @@ The first test is expected to be **red until F-01 is decided**; that is the poin
 **必须团队拍板的问题（F-01，P1）**：容差固定为绝对 0.01 个百分点，导致**任何除不尽的增长率，只要答案保留一位小数就会被判 failed**。我用你们代码里的同一套表达式复现过：3→4（真值 33.3333…%）答 `33.3` → failed；7→9 答 `28.6` → failed；11000→9000 答 `−18.2` → failed。现有 fixture 恰好是 10000→11000（正好 10%），所以测试全绿把这个坑完全遮住了，一进 Sprint 2 换数据集就会变成误报率飙升。它不会造成假通过（方向是安全的），但会直接伤到项目的头号指标。建议在"绝对 0.05pp 或相对 0.5% 取宽者"、"限定 claim 精度"、"按展示精度比较"三个方案里选一个，写进 ADR 与评测契约。
 
 **其余要点**：展示值只有 2 位而判定用全精度，用户无法从报告解释结论（F-02）；驱动一旦返回 Decimal/float，全部案例会静默变成"无法验证"，工具看起来正常但检出能力归零（F-03）；断链算不算进错误检出率的分母没有任何文件写死（F-04）；真实模型模式下 SQL 是 harness 执行的、不是模型执行的，这条限定必须写进文档，否则评估过度声称（F-05）；崩溃后报告永久停在 `running`，与"每个案例必有终态"的验收冲突，建议从纯技术债改判为缺陷+技术债（F-06）；仓库关闭了 Issues、PR 目前 0 评审，且缺少评测契约文件（F-07、F-08）。
+
+另外我在 Windows 上把这套测试真跑了一遍：**26 通过、4 失败**。4 个失败全部来自同一条链——临时 SQLite 文件在 `TemporaryDirectory` 清理时仍被占用（`WinError 32`），异常被 `except` 吞成 `query_failed`，于是每次运行都在"证据已经抓到"之后被判工具错误。Linux 上看不到，所以那 30 个绿灯没暴露它。把清理改成 `ignore_cleanup_errors=True` 后本地 30/30 全绿（F-09）。
 
 第 4 节给了可直接粘贴的测试（其中 F-01 那组在决定之前应该是红的），第 5 节是需要并入登记册的新条目。**以上每条都需要你本人复核后再署名提交。**
