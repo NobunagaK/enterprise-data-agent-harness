@@ -47,6 +47,7 @@ Severity uses the register's own scale: **P1** threatens core acceptance, **P2**
   - **B. Widen to `max(0.05pp, 0.5% of expected)`.** Accepts one-decimal answers (0.05pp is half a unit at 1 dp). `33.3` → diff 0.0333 ≤ 0.167 → passed.
   - **C. Compare on the display grid.** Round the expected value to the same precision the report shows, then compare. Fixes F-02 at the same time, but silently loosens the rule.
   - **Recommendation: B**, with the tolerance formula written into the evaluation contract, because B keeps "unverifiable" meaning "we could not check" rather than "the answer was formatted differently than we like".
+  - **Important:** B is a **contract change, not a refactor**. Applied locally against this suite, B turns two existing acceptance expectations green: `10.0100001` and `10.02` are asserted `failed` today and would pass at `max(0.05pp, 0.5%)`. So choosing B requires an ADR, an explicit test update and a note in the evaluation contract; doing it silently would be moving the goalposts.
 
 ### F-02 · P2 · The displayed expected value is less precise than the value used for the decision
 
