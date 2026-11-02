@@ -271,3 +271,74 @@ async def test_api_and_persistence(tmp_path):
         restored = await store.get(session, report["id"])
         assert restored.model_dump(mode="json") == report
     await reopened.dispose()
+
+
+@pytest.mark.parametrize("amount", [Decimal(10000), 10000.0])
+def test_integral_numeric_type_variants_are_accepted(amount):
+    item = evidence()
+    item.rows[0]["amount_cents"] = amount
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "passed"
+
+
+@pytest.mark.parametrize(
+    "amount",
+    [
+        "10000",
+        True,
+        False,
+        float("inf"),
+        float("nan"),
+        Decimal("Infinity"),
+        Decimal("NaN"),
+        Decimal("sNaN"),
+    ],
+)
+def test_foreign_amount_type_is_tool_error_not_missing_data(amount):
+    item = evidence()
+    item.rows[0]["amount_cents"] = amount
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "tool_error"
+    assert result.reason == "evidence_type_drift"
+
+
+@pytest.mark.parametrize("amount", [Decimal("10000.5"), 10000.5])
+def test_fractional_cent_is_unverifiable(amount):
+    item = evidence()
+    item.rows[0]["amount_cents"] = amount
+    result = validate_growth("run-1", Claim(evidence_id="e-1", claimed_value="10"), [item])
+    assert result.status == "unverifiable"
+    assert result.reason == "non_integral_amount"
+
+
+@pytest.mark.parametrize("query_fails", [False, True])
+def test_query_closes_connection_and_removes_temp_artifacts(tmp_path, monkeypatch, query_fails):
+    import sqlite3
+    import tempfile
+
+    connections = []
+    original_connect = sqlite3.connect
+    original_directory = tempfile.TemporaryDirectory
+
+    def connect(*args, **kwargs):
+        conn = original_connect(*args, **kwargs)
+        connections.append(conn)
+        return conn
+
+    monkeypatch.setattr(runner.sqlite3, "connect", connect)
+    monkeypatch.setattr(
+        runner.tempfile, "TemporaryDirectory", lambda **kw: original_directory(dir=tmp_path, **kw)
+    )
+    if query_fails:
+        monkeypatch.setattr(
+            runner.SQLAlchemyQueryEngine, "_run_query", lambda *a, **kw: {"error": "failure"}
+        )
+        with pytest.raises(RuntimeError):
+            runner.query_sales(Run(source="test_injected"))
+    else:
+        runner.query_sales(Run(source="test_injected"))
+    assert connections
+    for conn in connections:
+        with pytest.raises(sqlite3.ProgrammingError, match="closed"):
+            conn.execute("SELECT 1")
+    assert list(tmp_path.iterdir()) == []
