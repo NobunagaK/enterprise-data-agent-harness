@@ -1,3 +1,11 @@
+# Historical review archive — status as of 2026-11-03
+
+This document preserves C's original review of the earlier implementation. Findings below describe that revision, not current main. PR #1 and PR #3 were subsequently merged. This archive does not assert that C/D approved the final revision or that F completed independent acceptance.
+
+Current disposition: [evaluation contract](../design/sprint1-evaluation-contract.md), [acceptance evidence](../sprint1-acceptance.md), [PR #3 issue backfill drafts](PR3-issue-backfill.md). F-01 retains the explicitly confirmed inclusive 0.01pp contract; F-02/F-03/F-06/F-09 received fixes; F-04/F-08 have a documented contract. F-05 first tool invocation executes fixed SQL, later calls reuse evidence; arbitrary SQL is excluded. F-07 process evidence remains factual, with Issues creation blocked by repository settings. Remote calls, final Windows verification and F's independent acceptance remain unverified.
+
+## Original review (preserved verbatim)
+
 # S1-T03 Review — Numerical Validation and Evidence Association
 
 - **Reviewer:** Zikai He (C) · **Date:** 2026-10-31
@@ -192,3 +200,10 @@ The first test is expected to be **red until F-01 is decided**; that is the poin
 另外我在 Windows 上把这套测试真跑了一遍：**26 通过、4 失败**。4 个失败全部来自同一条链——临时 SQLite 文件在 `TemporaryDirectory` 清理时仍被占用（`WinError 32`），异常被 `except` 吞成 `query_failed`，于是每次运行都在"证据已经抓到"之后被判工具错误。Linux 上看不到，所以那 30 个绿灯没暴露它。把清理改成 `ignore_cleanup_errors=True` 后本地 30/30 全绿（F-09）。
 
 第 4 节给了可直接粘贴的测试（其中 F-01 那组在决定之前应该是红的），第 5 节是需要并入登记册的新条目。**以上每条都需要你本人复核后再署名提交。**
+
+
+---
+
+# 中文归档说明
+
+本文件保留 C 对旧实现的原始评审，不能当作当前 main 的未解决缺陷清单。PR #1/#3 已合并；本次归档不代表 C/D 对最终修订新增批准，也不代表 F 独立验收完成。处置与证据见开头链接。F-01 保留已确认容差；F-02/03/06/09 已修复；F-04/08 已记录契约；F-05 首次工具调用执行固定 SQL，不支持任意 SQL；F-07 如实保留过程记录。真实模型、最终 Windows 复测和 F 独立验收仍未验证。PR #3 Issues 目前仅为草稿，仓库尚未启用 Issues。
