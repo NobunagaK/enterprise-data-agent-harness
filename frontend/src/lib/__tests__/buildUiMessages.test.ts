@@ -192,3 +192,13 @@ describe("multi-turn conversation", () => {
     expect(messages[0].role).toBe("user");
   });
 });
+
+
+it("does not attach tool usage across user turns", () => {
+  const { messages } = buildUiMessages([
+    rec({ role: "assistant", event_type: "TOOL_CALL", payload: { tool_name: "old", tool_input: {} } }),
+    rec({ role: "user", event_type: "TEXT", payload: { text: "new turn" } }),
+    rec({ role: "assistant", event_type: "USAGE", payload: usage(10, 2) as never }),
+  ]);
+  expect(messages[0].usage).toBeUndefined();
+});

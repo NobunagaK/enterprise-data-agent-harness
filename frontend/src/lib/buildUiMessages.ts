@@ -69,6 +69,7 @@ export function buildUiMessages(records: MessageRecord[]): {
     if (m.role === "user") {
       flushText(seenToolCallAfterText);
       turnUsages = [];
+      pendingUsage = null;
       result.push({ id: m.id, event_type: m.event_type, role: "user", payload: m.payload, created_at: m.created_at });
       continue;
     }
@@ -135,22 +136,13 @@ export function buildUiMessages(records: MessageRecord[]): {
           pendingUsage = u;
           break;
         }
-        // No pending text — this LLM call produced only tool calls. Walk back
-        // within the current call's slice (stop at TOOL_RESULT/SQL/CHART/ERROR)
-        // and attach to the most recent TOOL_CALL.
+        // Tool usage may arrive after its result. Stay inside this user turn
+        // and never cross a text response or overwrite an attributed call.
         for (let j = result.length - 1; j >= 0; j--) {
           const r = result[j];
-          if (r.role !== "assistant") continue;
+          if (r.role !== "assistant" || r.event_type === "TEXT") break;
           if (r.event_type === "TOOL_CALL") {
-            r.usage = u;
-            break;
-          }
-          if (
-            r.event_type === "TOOL_RESULT" ||
-            r.event_type === "SQL" ||
-            r.event_type === "CHART" ||
-            r.event_type === "ERROR"
-          ) {
+            if (!r.usage) r.usage = u;
             break;
           }
         }

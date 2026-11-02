@@ -33,7 +33,7 @@ class Evidence(BaseModel):
 class ValidationResult(BaseModel):
     status: Literal["passed", "failed", "unverifiable", "tool_error"]
     reason: str
-    rule_version: str = "growth_rate-v1"
+    rule_version: str = "growth_rate-v2"
     tolerance_pp: str = "0.01"
     expected_value: str | None = None
     expected_display: str | None = None

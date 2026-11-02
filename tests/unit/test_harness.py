@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 from analytics_agent.api.harness import router
 from analytics_agent.db.base import get_session
-from analytics_agent.db.models import Base
+from analytics_agent.db.models import Base, HarnessRun
 from analytics_agent.harness import runner, store
 from analytics_agent.harness.models import Claim, Evidence, Run
 from analytics_agent.harness.validation import validate_growth
@@ -342,3 +342,59 @@ def test_query_closes_connection_and_removes_temp_artifacts(tmp_path, monkeypatc
         with pytest.raises(sqlite3.ProgrammingError, match="closed"):
             conn.execute("SELECT 1")
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    "previous,current,claim", [(3, 4, "33.3"), (7, 9, "28.6"), (11000, 9000, "-18.2")]
+)
+def test_low_precision_claims_keep_absolute_tolerance(previous, current, claim):
+    result = validate_growth(
+        "run-1",
+        Claim(evidence_id="e-1", claimed_value=claim),
+        [evidence(previous=previous, current=current)],
+    )
+    assert result.status == "failed"
+    assert result.tolerance_pp == "0.01"
+
+
+async def test_stale_reports_reconcile_without_changing_live_or_completed_runs(tmp_path):
+    from datetime import UTC, datetime, timedelta
+
+    engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'stale.db'}")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    old = datetime.now(UTC) - timedelta(seconds=301)
+    stale = Run(source="test_injected", started_at=old)
+    live = Run(source="test_injected")
+    completed = await runner.execute(Run(source="test_injected", started_at=old))
+    async with factory() as session:
+        for run in [stale, live, completed]:
+            await store.save(session, run)
+        reports = {r.id: r for r in await store.list_runs(session, None)}
+        assert reports[stale.id].result.reason == "stale_running"
+        assert reports[stale.id].state == "error"
+        assert reports[stale.id].started_at == old
+        assert reports[live.id].state == "running"
+        assert reports[completed.id] == completed
+    async with factory() as session:
+        assert await store.get(session, stale.id) == reports[stale.id]
+    await engine.dispose()
+
+
+async def test_stale_reconciliation_does_not_overwrite_concurrent_completion(tmp_path):
+    from datetime import UTC, datetime, timedelta
+
+    engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'race.db'}")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    run = Run(source="test_injected", started_at=datetime.now(UTC) - timedelta(seconds=301))
+    async with factory() as reader, factory() as writer:
+        await store.save(writer, run)
+        snapshot = await reader.get(HarnessRun, run.id)
+        await reader.commit()
+        finished = await runner.execute(run)
+        await store.save(writer, finished)
+        assert await store.reconcile(reader, snapshot) == finished
+    await engine.dispose()

@@ -20,6 +20,7 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${TEST_PORT}`,
     trace: "on-first-retry",
+    launchOptions: { executablePath: process.env.HARNESS_CHROMIUM_PATH || undefined },
   },
 
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

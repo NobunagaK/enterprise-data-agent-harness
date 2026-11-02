@@ -12,6 +12,9 @@ const reasons: Record<string, string> = {
   execution_error: "执行失败；请检查模型配置或服务状态。",
   query_failed: "查询执行失败。",
   validator_error: "验证器发生内部错误。",
+  stale_running: "运行超过 5 分钟仍未完成，已标记为工具错误；可重新运行。",
+  evidence_type_drift: "查询返回了不支持或非有限的金额类型。",
+  non_integral_amount: "金额包含不足一分的小数，无法验证。",
   run_timeout: "运行超过 60 秒限制。",
 };
 
@@ -26,6 +29,7 @@ export function ValidationResultCard({ run }: { run: HarnessRun }) {
       </p>
       <p>声明：{run.claim ? `${run.claim.claimed_value} ${run.claim.unit}` : "未提交"}
         {result?.expected_display != null && ` · 计算结果：${result.expected_display}%`}</p>
+      {result?.expected_value != null && <p className="text-xs break-all">未按展示位数舍入的计算值：{result.expected_value}% · 差值：{result.difference_pp} 个百分点</p>}
       {run.answer && <p className="whitespace-pre-wrap">模型回答：{run.answer}{run.answer_truncated ? "（已截断）" : ""}</p>}
       <p>{result ? (reasons[result.reason] ?? result.reason) : "记录尚未完成。刷新历史可检查状态；进程中断的运行不会计为通过。"}</p>
       {result && <p className="text-xs text-muted-foreground">容差：{result.tolerance_pp} 个百分点 · 规则：{result.rule_version}</p>}

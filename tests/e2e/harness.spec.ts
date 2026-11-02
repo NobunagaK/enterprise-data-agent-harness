@@ -14,6 +14,8 @@ test("fixed SQL evidence, failed claim and history survive page reload", async (
   const card = page.getByRole("article", { name: "证据验证结果" }).first();
   await expect(card).toContainText("证据验证：失败");
   await expect(card).toContainText("计算结果：10.00%");
+  await expect(card).toContainText("差值：8.7 个百分点");
+  await expect(card).toContainText("容差：0.01 个百分点");
   await expect(card).toContainText("测试注入声明（非真实模型答案）");
   await card.getByText("查看 SQL、证据与执行步骤", { exact: true }).click();
   await expect(card).toContainText("SUM(amount_cents)");
