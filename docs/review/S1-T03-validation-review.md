@@ -2,7 +2,7 @@
 
 This document preserves C's original review of the earlier implementation. Findings below describe that revision, not current main. PR #1 and PR #3 were subsequently merged. This archive does not assert that C/D approved the final revision or that F completed independent acceptance.
 
-Current disposition: [evaluation contract](../design/sprint1-evaluation-contract.md), [acceptance evidence](../sprint1-acceptance.md), [PR #3 issue backfill drafts](PR3-issue-backfill.md). F-01 retains the explicitly confirmed inclusive 0.01pp contract; F-02/F-03/F-06/F-09 received fixes; F-04/F-08 have a documented contract. F-05 first tool invocation executes fixed SQL, later calls reuse evidence; arbitrary SQL is excluded. F-07 process evidence remains factual, with Issues creation blocked by repository settings. Remote calls, final Windows verification and F's independent acceptance remain unverified.
+Current disposition: [evaluation contract](../design/sprint1-evaluation-contract.md), [acceptance evidence](../sprint1-acceptance.md), [PR #3 issue backfill drafts](PR3-issue-backfill.md). F-01 retains the explicitly confirmed inclusive 0.01pp contract; F-02/F-03/F-06/F-09 received fixes; F-04/F-08 have a documented contract. F-05 first tool invocation executes fixed SQL, later calls reuse evidence; arbitrary SQL is excluded. F-07 process evidence remains factual, with the earlier Issues block now resolved: records #4–#12 were created; #11–#12 remain open. Remote calls, final Windows verification and F's independent acceptance remain unverified.
 
 ## Original review (preserved verbatim)
 
@@ -206,4 +206,4 @@ The first test is expected to be **red until F-01 is decided**; that is the poin
 
 # 中文归档说明
 
-本文件保留 C 对旧实现的原始评审，不能当作当前 main 的未解决缺陷清单。PR #1/#3 已合并；本次归档不代表 C/D 对最终修订新增批准，也不代表 F 独立验收完成。处置与证据见开头链接。F-01 保留已确认容差；F-02/03/06/09 已修复；F-04/08 已记录契约；F-05 首次工具调用执行固定 SQL，不支持任意 SQL；F-07 如实保留过程记录。真实模型、最终 Windows 复测和 F 独立验收仍未验证。PR #3 Issues 目前仅为草稿，仓库尚未启用 Issues。
+本文件保留 C 对旧实现的原始评审，不能当作当前 main 的未解决缺陷清单。PR #1/#3 已合并；本次归档不代表 C/D 对最终修订新增批准，也不代表 F 独立验收完成。处置与证据见开头链接。F-01 保留已确认容差；F-02/03/06/09 已修复；F-04/08 已记录契约；F-05 首次工具调用执行固定 SQL，不支持任意 SQL；F-07 如实保留过程记录。真实模型、最终 Windows 复测和 F 独立验收仍未验证。仓库启用 Issues 后，PR #3 已补录为 #4–#12；#11–#12 保持开放，见补录索引。
