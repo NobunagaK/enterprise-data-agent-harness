@@ -1,5 +1,7 @@
 # Sprint 1 Technical Debt and Risk Register / 技术债与风险登记
 
+Current review disposition and acceptance evidence: [Sprint 1 acceptance](../sprint1-acceptance.md). Earlier status statements below are historical snapshots.
+
 Version: 0.2 · Prepared: 2026-10-30 (Asia/Shanghai) · Team review pending.
 Implementation reference: `494388a`. Owners A–F follow the [team plan](sprint1-team-plan.md) confirmed by Zefeng Chen on 2026-10-30. This does not assert individual member acknowledgement or completed review.
 
@@ -190,3 +192,5 @@ Issue／PR／测试／评审证据：
 ```
 
 本初版未填造团队决定日期和偿还完成情况。配套：[需求与设计](../design/sprint1-requirements-design.md)、[运行说明](../sprint1.md)。
+
+当前评审处置及验收证据见本文开头链接；早期状态属于历史快照。

@@ -1,5 +1,7 @@
 # Sprint 1: Sales Growth Evidence Validation
 
+Current review disposition and acceptance evidence: [Sprint 1 acceptance](sprint1-acceptance.md). Earlier status statements below are historical snapshots.
+
 The English development guide appears first. The Chinese version follows below.
 
 ## Confirmed scope
@@ -283,3 +285,5 @@ GET /api/harness/runs（可选 conversation_id），GET /api/harness/runs/{id}�
 本次已完成的是 AI 协助实现和自动测试。没有替成员创建已完成的会议、工时、燃尽数据或评审。
 没有提交/推送，也没有创建 GitHub PR。用户检查聊天中的代码后，再按其指示进入 GitHub 协作。
 实际任务负责人、剩余工时、每周会议、PR 同伴评审和 Sprint 回顾由团队按真实活动补充。
+
+当前评审处置及验收证据见本文开头链接；早期状态属于历史快照。

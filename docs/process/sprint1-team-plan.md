@@ -1,5 +1,7 @@
 # Sprint 1 Team Task Plan / 团队任务分工
 
+Current review disposition and acceptance evidence: [Sprint 1 acceptance](../sprint1-acceptance.md). Earlier status statements below are historical snapshots.
+
 Version: 0.2 · Prepared: 2026-10-30 (Asia/Shanghai) · Status: assignments confirmed by Zefeng Chen; estimates remain provisional.
 
 Member mapping: A = Zefeng Chen; B = Rui Wen; C = Zikai He; D = Haoyu Shen; E = Ziyi Sun; F = Xuanyu Lu.
@@ -208,3 +210,5 @@ GitHub 账号、可投入时间、Sprint 起止日期、PR 地址仍待填写。
 - 独立验收、每周活动和回顾均有真实记录。
 
 配套：[需求与设计](../design/sprint1-requirements-design.md)、[技术债与风险](sprint1-debt-risk-register.md)。
+
+当前评审处置及验收证据见本文开头链接；早期状态属于历史快照。

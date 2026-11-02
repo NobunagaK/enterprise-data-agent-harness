@@ -1,5 +1,7 @@
 # Sprint 1 Requirements and Design / 需求与设计
 
+Current review disposition and acceptance evidence: [Sprint 1 acceptance](../sprint1-acceptance.md). Earlier status statements below are historical snapshots.
+
 Version: 0.2 · Prepared: 2026-10-30 (Asia/Shanghai).
 Numerical scope was approved by the user. Zefeng Chen confirmed member assignments on 2026-10-30; technical peer review and independent acceptance remain pending. Implementation reference: `494388a`;
 upstream baseline: `90e34d49742852cd70b8ec506ba0ffaa1fe1bf90`.
@@ -287,3 +289,5 @@ Issue／PR／证据链接：
 ```
 
 配套：[任务分工](../process/sprint1-team-plan.md)、[技术债与风险](../process/sprint1-debt-risk-register.md)、[运行说明](../sprint1.md)。
+
+当前评审处置及验收证据见本文开头链接；早期状态属于历史快照。
