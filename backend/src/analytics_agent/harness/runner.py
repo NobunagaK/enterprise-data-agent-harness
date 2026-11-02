@@ -2,6 +2,7 @@ import asyncio
 import json
 import sqlite3
 import tempfile
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
@@ -30,9 +31,9 @@ def query_sales(run: Run) -> Evidence:
     step = Step(kind="query")
     run.steps.append(step)
     try:
-        with tempfile.TemporaryDirectory(prefix="harness-sales-", ignore_cleanup_errors=True) as directory:
+        with tempfile.TemporaryDirectory(prefix="harness-sales-") as directory:
             db = Path(directory) / "sales.db"
-            with sqlite3.connect(db) as conn:
+            with closing(sqlite3.connect(db)) as conn, conn:
                 conn.execute(
                     "CREATE TABLE sales_records (id INTEGER PRIMARY KEY, store_id TEXT, year INTEGER, amount_cents INTEGER, currency TEXT)"
                 )

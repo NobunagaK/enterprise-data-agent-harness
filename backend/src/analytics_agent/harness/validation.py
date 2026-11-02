@@ -1,3 +1,4 @@
+import math
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
 
 from analytics_agent.harness.models import Claim, Evidence, ValidationResult
@@ -50,6 +51,10 @@ def validate_growth(run_id: str, claim: Claim | None, evidence: list[Evidence]) 
         if value is None:
             return unknown("missing_or_invalid_amount")
         if isinstance(value, bool) or not isinstance(value, (int, Decimal, float)):
+            return tool_error("evidence_type_drift")
+        if (isinstance(value, float) and not math.isfinite(value)) or (
+            isinstance(value, Decimal) and not value.is_finite()
+        ):
             return tool_error("evidence_type_drift")
         if isinstance(value, float) and not value.is_integer():
             return unknown("non_integral_amount")
