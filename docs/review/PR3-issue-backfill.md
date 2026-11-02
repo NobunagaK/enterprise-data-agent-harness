@@ -1,3 +1,21 @@
+# PR #3 issue backfill — created records
+
+Update 2026-11-03 (Asia/Shanghai): the owner enabled Issues. All nine records below now exist. Issues #4–#10 were closed as completed based on the documented fixes/scope decisions; #11–#12 remain open. The earlier draft and access failures below are preserved as history, not current status. No new runtime tests or human approvals are claimed.
+
+| Issue | Topic | State at update |
+|---|---|---|
+| [#4](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/4) | SQLite connection cleanup | Closed |
+| [#5](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/5) | Cleanup regression tests | Closed |
+| [#6](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/6) | Ruff formatting | Closed |
+| [#7](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/7) | Nonfinite Decimal evidence | Closed |
+| [#8](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/8) | Bool/fractional-float cases | Closed |
+| [#9](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/9) | Python/numpy scope boundary | Closed |
+| [#10](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/10) | Documentation and portable commands | Closed |
+| [#11](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/11) | Final Windows verification | Open |
+| [#12](https://github.com/NobunagaK/enterprise-data-agent-harness/issues/12) | Remote provider and independent acceptance | Open |
+
+## Historical preparation snapshot
+
 # PR #3 issue backfill drafts
 
 Prepared 2026-11-03 (Asia/Shanghai), after merge. **These are drafts, not GitHub Issues.** Creation returned HTTP 410 because Issues is disabled; enabling via CLI returned Forbidden. No issue numbers, assignments or closure events have been invented. Enable Settings → General → Features → Issues, create these records, then close only entries with completed dispositions.
@@ -87,3 +105,7 @@ F-01 retains the owner-confirmed inclusive 0.01pp tolerance (counterexamples pro
 - 原评审 Out of scope：模型范围已澄清，但真实调用和独立验收仍待完成。 预期状态：保持开放。
 
 其余引用项：F-01 按用户约定保留容差；F-06 已补过期协调；CI 已扩展分支与 Windows 测试，但未声称远程执行通过。原始提交标题不重写，修复通过后续提交说明。
+
+## 中文状态更新（2026-11-03）
+
+用户启用 Issues 后已创建全部 9 项记录：#4–#10 按修复或范围决定证据关闭；#11 Windows 复测、#12 真实模型及独立验收保持开放。上方草稿及访问失败属于历史记录，不再是当前状态。未新增测试结果或人工批准。
