@@ -2,11 +2,22 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, sprint1/harness]
   pull_request:
-    branches: [main]
+    branches: [main, sprint1/harness]
 
 jobs:
+  harness-windows:
+    name: Harness — Windows lifecycle regression
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - run: uv run pytest tests/unit/test_harness.py -q
+
   # ── Python backend ──────────────────────────────────────────────────────────
   backend-lint:
     name: Backend — lint & typecheck
@@ -135,3 +146,6 @@ jobs:
 
       - name: ESLint
         run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
