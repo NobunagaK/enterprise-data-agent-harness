@@ -230,7 +230,9 @@ def test_migration_preserves_existing_rows_and_is_repeatable(tmp_path, monkeypat
         )
     command.upgrade(config, "head")
     command.upgrade(config, "head")
-    assert "harness_runs" in inspect(engine).get_table_names()
+    tables = inspect(engine).get_table_names()
+    assert "harness_runs" in tables
+    assert "harness_batches" in tables
     with engine.connect() as conn:
         assert conn.scalar(text("SELECT value FROM settings WHERE key='keep'")) == "original"
     engine.dispose()

@@ -5,7 +5,15 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from analytics_agent.api import chat, connectors, conversations, harness, oauth, settings
+from analytics_agent.api import (
+    chat,
+    connectors,
+    conversations,
+    harness,
+    harness_batches,
+    oauth,
+    settings,
+)
 
 api_router = APIRouter()
 api_router.include_router(conversations.router)
@@ -14,6 +22,7 @@ api_router.include_router(settings.router)
 api_router.include_router(oauth.router)
 api_router.include_router(connectors.router)
 api_router.include_router(harness.router)
+api_router.include_router(harness_batches.router)
 
 # Simple in-memory cache for GitHub release data (avoids hammering the API)
 _releases_cache: dict[str, Any] = {}

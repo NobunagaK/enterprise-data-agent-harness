@@ -25,6 +25,15 @@ class HarnessRun(Base):
     report: Mapped[str] = mapped_column(Text, nullable=False)
 
 
+class HarnessBatch(Base):
+    __tablename__ = "harness_batches"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    conversation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    report: Mapped[str] = mapped_column(Text, nullable=False)
+
+
 class Setting(Base):
     """Key-value store for app-level settings (prompt, display, tool toggles)."""
 
