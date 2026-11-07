@@ -79,7 +79,8 @@ jobs:
   # ── Playwright e2e ──────────────────────────────────────────────────────────
   e2e:
     name: E2E — Playwright
-    runs-on: ubuntu-latest
+    # Playwright 1.59.1 cannot install Chromium dependencies on Ubuntu 26.04.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
