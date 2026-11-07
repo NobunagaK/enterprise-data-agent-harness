@@ -1,0 +1,18 @@
+{
+  "id": "legacy-fixture", "conversation_id": null, "source": "test_injected",
+  "started_at": "2026-10-30T00:00:00Z", "finished_at": "2026-10-30T00:00:01Z",
+  "state": "completed", "model": null, "answer": null, "answer_truncated": false,
+  "steps": [{"id": "legacy-query", "kind": "query", "status": "completed", "duration_ms": 1.0, "error": null}],
+  "evidence": [{
+    "id": "legacy-evidence", "run_id": "legacy-fixture", "step_id": "legacy-query",
+    "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents FROM sales_records GROUP BY store_id, year, currency",
+    "columns": ["store_id", "year", "currency", "amount_cents"],
+    "rows": [
+      {"store_id": "demo-store", "year": 2024, "currency": "CNY", "amount_cents": 10000},
+      {"store_id": "demo-store", "year": 2025, "currency": "CNY", "amount_cents": 11000}
+    ],
+    "truncated": false, "dataset_version": "sales-v1", "amount_unit": "CNY_cent"
+  }],
+  "claim": {"evidence_id": "legacy-evidence", "claimed_value": "10", "unit": "percent", "store_id": "demo-store", "previous_year": 2024, "current_year": 2025},
+  "result": {"status": "passed", "reason": "within_tolerance", "rule_version": "growth_rate-v2", "tolerance_pp": "0.01", "expected_value": "10", "expected_display": "10.00", "claimed_value": "10", "difference_pp": "0"}
+}
