@@ -1,11 +1,22 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { HarnessRun } from "@/api/harness";
-import legacyFixture from "../../../../../tests/fixtures/harness/sprint1-run.json";
 import { ValidationResultCard } from "../ValidationResultCard";
 
 // Synthetic compatibility fixture, not an actual historical acceptance report.
-const legacy = legacyFixture as HarnessRun;
+const legacy: HarnessRun = {
+  id: "legacy-fixture", conversation_id: null, source: "test_injected",
+  started_at: "2026-10-30T00:00:00Z", finished_at: "2026-10-30T00:00:01Z",
+  state: "completed", model: null, answer: null, answer_truncated: false,
+  steps: [{ id: "query", kind: "query", status: "completed", duration_ms: 1, error: null }],
+  evidence: [],
+  claim: { evidence_id: "e", claimed_value: "10", unit: "percent" },
+  result: {
+    status: "passed", reason: "within_tolerance", rule_version: "growth_rate-v2",
+    tolerance_pp: "0.01", expected_value: "10", expected_display: "10.00",
+    claimed_value: "10", difference_pp: "0",
+  },
+};
 
 describe("report contract rendering", () => {
   it("renders a Sprint 1 report without new fields", () => {
