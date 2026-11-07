@@ -1,26 +1,77 @@
+export type HarnessSource = "test_injected" | "agent_generated";
+export type ValidationStatus = "passed" | "failed" | "unverifiable" | "tool_error";
+export type ValueUnit = "percent" | "CNY_cent";
+
+// Only currently executable capabilities belong in this request type.
+export interface HarnessRunRequest {
+  source?: HarnessSource;
+  claimed_value?: string;
+  conversation_id?: string | null;
+  case_id?: string | null;
+  rule_id?: "growth_rate";
+  dataset_version?: "sales-v1";
+  unit?: "percent";
+  parameters?: {
+    store_id?: "demo-store";
+    previous_year?: 2024;
+    current_year?: 2025;
+  };
+}
+
+export interface HarnessStep {
+  id: string;
+  kind: "query" | "claim" | "validation" | "model" | "tool" | "answer" | "context";
+  status: "running" | "completed" | "error" | "skipped";
+  duration_ms: number | null;
+  error: string | null;
+  parent_step_id?: string | null;
+  started_at?: string | null;
+  finished_at?: string | null;
+  token_usage?: { input_tokens: number | null; output_tokens: number | null } | null;
+}
+
+export interface HarnessEvidence {
+  id: string; run_id: string; step_id: string; sql: string;
+  columns: string[]; rows: Record<string, unknown>[]; truncated: boolean;
+  dataset_version: string; amount_unit: string;
+}
+
+export interface HarnessValidationResult {
+  status: ValidationStatus;
+  reason: string;
+  rule_version: string;
+  // Optional additive fields allow rendering original Sprint 1 snapshots.
+  unit?: ValueUnit;
+  tolerance?: string | null;
+  difference?: string | null;
+  tolerance_pp: string | null;
+  expected_value: string | null;
+  expected_display: string | null;
+  claimed_value: string | null;
+  difference_pp: string | null;
+}
+
 export interface HarnessRun {
+  schema_version?: 1 | 2;
   id: string;
   conversation_id: string | null;
-  source: "test_injected" | "agent_generated";
+  case_id?: string | null;
+  rule_id?: "growth_rate" | "sales_total";
+  dataset_version?: string;
+  source: HarnessSource;
   started_at: string;
   finished_at: string | null;
   state: "running" | "completed" | "error";
   model: string | null;
   answer: string | null;
   answer_truncated: boolean;
-  steps: { id: string; kind: string; status: string; duration_ms: number; error: string | null }[];
-  evidence: {
-    id: string; run_id: string; step_id: string; sql: string;
-    columns: string[]; rows: Record<string, unknown>[]; truncated: boolean;
-    dataset_version: string; amount_unit: string;
-  }[];
-  claim: { evidence_id: string; claimed_value: string; unit: string } | null;
-  result: {
-    status: "passed" | "failed" | "unverifiable" | "tool_error";
-    reason: string; rule_version: string; tolerance_pp: string;
-    expected_value: string | null; expected_display: string | null;
-    claimed_value: string | null; difference_pp: string | null;
+  steps: HarnessStep[];
+  evidence: HarnessEvidence[];
+  claim: {
+    evidence_id: string; claimed_value: string; unit: string;
+    store_id?: string; previous_year?: number; current_year?: number;
   } | null;
+  result: HarnessValidationResult | null;
 }
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -39,9 +90,18 @@ export function createHarnessRun(
   source: HarnessRun["source"],
   claimedValue: string,
 ) {
+  return submitHarnessRun({ conversation_id: conversationId, source, claimed_value: claimedValue });
+}
+
+// Shared object-based entry point; the existing UI keeps its positional wrapper.
+export function submitHarnessRun(body: HarnessRunRequest) {
   return request<HarnessRun>("/api/harness/runs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation_id: conversationId, source, claimed_value: claimedValue }),
+    body: JSON.stringify(body),
   });
+}
+
+export function getHarnessRun(runId: string) {
+  return request<HarnessRun>(`/api/harness/runs/${encodeURIComponent(runId)}`);
 }
