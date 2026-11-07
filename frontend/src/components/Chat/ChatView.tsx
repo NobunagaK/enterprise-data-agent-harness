@@ -14,6 +14,7 @@ import type { UIMessage } from "@/types";
 import { buildUiMessages } from "@/lib/buildUiMessages";
 import { v4 as uuidv4 } from "uuid";
 import { HarnessCheck } from "./HarnessCheck";
+import { HarnessBatchPanel } from "./HarnessBatchPanel";
 
 export function ChatView() {
   const {
@@ -314,7 +315,7 @@ export function ChatView() {
   };
 
   if (!activeId) {
-    return <><WelcomeView onSend={handleWelcomeSend} /><HarnessCheck key="standalone" conversationId={null} /></>;
+    return <><WelcomeView onSend={handleWelcomeSend} /><HarnessCheck key="standalone" conversationId={null} /><HarnessBatchPanel key="batch-standalone" conversationId={null} /></>;
   }
 
   return (
@@ -384,6 +385,7 @@ export function ChatView() {
         }}
       />
       <HarnessCheck key={activeId} conversationId={activeId} />
+      <HarnessBatchPanel key={`batch-${activeId}`} conversationId={activeId} />
       <MessageInput
         onSend={handleSend}
         disabled={isStreaming}

@@ -14,11 +14,12 @@ In:
 - isolate per-case failures and timeouts, and continue with later cases;
 - summarise attempted / completed / passed / failed / unverifiable / tool_error / timeout / error;
 - persist one batch snapshot after every case (`harness_batches`, migration 007);
-- expose `POST/GET /api/harness/batches`.
+- expose `POST/GET /api/harness/batches`;
+- a React panel (`HarnessBatchPanel.tsx`) mounted in `ChatView`, with the four-category
+  summary, per-case states, run drill-down and batch history.
 
 Out (explicitly):
 
-- the React batch panel (`HarnessBatchPanel.tsx`) — follow-up PR;
 - background scheduling, queues, retry/resume; the POST is synchronous;
 - mixed-rule batches: `RunRequest` still accepts `growth_rate` only, so a case set is
   growth-only until F2 extends the shared request contract;
@@ -91,6 +92,8 @@ Out (explicitly):
    corresponding run may stay `running` until the single-run stale rule marks it.
 3. The snapshot is rewritten in full after every case; acceptable at ≤20 cases, not a
    scalable event store.
-4. No UI yet; the API is the acceptance surface for this PR.
+4. The panel always runs the bundled default case set; case-set selection is intentionally
+   fixed until a second set exists. Browser (Playwright) coverage for the panel is not
+   added in this PR — the existing real-SQL browser flow is unchanged.
 5. `source` is carried from the case definition, not from the HTTP caller; a UI must not
    be allowed to override it later, otherwise the injected/model split is polluted.

@@ -1,7 +1,7 @@
 # F4 batch evaluation — executed checks
 
-Date: 2026-11-07. Environment: Windows 11, Python 3.11.15, isolated venv with current
-unlocked dependencies (not `uv sync --frozen`). Backend only; no frontend or remote model.
+Date: 2026-11-07. Environment: Windows 11, Python 3.11.15 (isolated venv, unlocked
+dependencies) and Node 24.14 / pnpm 10.6.3. No remote model was called.
 
 ## Commands and results
 
@@ -24,6 +24,13 @@ mypy --config-file pyproject.toml \
 
 Harness tests: 73 before this branch (Sprint 1 + shared contracts) + 10 new batch tests.
 
+```bash
+cd frontend
+pnpm test     # 61 passed (53 existing + 5 client + 3 component tests)
+pnpm build    # tsc --noEmit && vite build: passed
+pnpm lint     # 0 errors, 7 pre-existing warnings in unchanged files
+```
+
 The existing migration regression test upgrades to `head` twice; it now also asserts that
 `harness_batches` exists after migration `007`, and that an earlier row survives.
 
@@ -37,14 +44,16 @@ The existing migration regression test upgrades to `head` twice; it now also ass
 - a middle failure (`RuntimeError`) is recorded as `error` and the later case completes;
 - a middle timeout is recorded as `timeout` and the later case completes;
 - batch snapshots persist and reload, and list by conversation;
+- the panel's pure summary renders the four categories, a timeout case and an
+  expected-status mismatch without turning either into a pass;
 - `expected_status` is not part of `RunRequest`;
 - API: 201 + full counts, read-back by ID, list; 422 for unknown fields/unsafe IDs;
   404 for a missing case set or conversation.
 
 ## Not run / not claimed
 
-- React batch panel (not implemented in this PR);
-- Playwright or any browser flow for batches;
+- Playwright or any browser flow for the batch panel (the existing single-run browser
+  flow is unchanged);
 - full backend suite and MCP transport tests (local venv lacks the DataHub stack);
 - Windows CI and Docker build (remote);
 - any real-model execution. `agent_generated` cases would need provider credentials and a
