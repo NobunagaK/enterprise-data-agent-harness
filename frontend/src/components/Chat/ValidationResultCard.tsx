@@ -1,3 +1,4 @@
+import { TracePanel } from "./TracePanel";
 import type { HarnessRun } from "@/api/harness";
 import { SqlMessage } from "./messages/SqlMessage";
 
@@ -43,9 +44,7 @@ export function ValidationResultCard({ run }: { run: HarnessRun }) {
         <div className="mt-2 space-y-3">
           <p className="text-xs break-all">运行 ID：{run.id}</p>
           <p className="text-xs">{run.started_at} → {run.finished_at ?? "尚未结束"}</p>
-          {run.steps.map(step => <p key={step.id} className="text-xs">
-            {step.kind} · {step.status} · {step.duration_ms == null ? "耗时未记录" : `${step.duration_ms.toFixed(2)} ms`} {step.error ?? ""}
-          </p>)}
+          <TracePanel run={run} />
           {run.evidence.map(item => <div key={item.id} className="space-y-1">
             <p className="text-xs break-all">证据：{item.id} · 数据：{item.dataset_version} · 金额单位：人民币分</p>
             <SqlMessage payload={item} />
