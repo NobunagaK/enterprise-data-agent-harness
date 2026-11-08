@@ -46,6 +46,11 @@ def _get_session_factory():
     return _AsyncSessionFactory
 
 
+def get_session_factory():
+    """Public accessor for callers that need several independent sessions."""
+    return _get_session_factory()
+
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     factory = _get_session_factory()
     async with factory() as session:

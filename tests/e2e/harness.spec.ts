@@ -8,7 +8,8 @@ test("fixed SQL evidence, failed claim and history survive page reload", async (
   await page.goto("/");
   await page.getByText("销售增长率验证 · Sprint 1", { exact: true }).click();
   await page.getByRole("button", { name: "运行验证" }).click();
-  await expect(page.getByText("证据验证：通过", { exact: true })).toBeVisible();
+  // Batch runs share the same run list, so assert on the newest card only.
+  await expect(page.getByText("证据验证：通过", { exact: true }).first()).toBeVisible();
   await page.getByLabel("声明增长率", { exact: true }).fill("18.7");
   await page.getByRole("button", { name: "运行验证" }).click();
   const card = page.getByRole("article", { name: "证据验证结果" }).first();
@@ -22,6 +23,7 @@ test("fixed SQL evidence, failed claim and history survive page reload", async (
   await expect(card).toContainText("11000");
   await page.reload();
   await page.getByText("销售增长率验证 · Sprint 1", { exact: true }).click();
-  await expect(page.getByRole("article", { name: "证据验证结果" })).toHaveCount(2);
-  await expect(page.getByRole("article", { name: "证据验证结果" }).first()).toContainText("证据验证：失败");
+  const cards = page.getByRole("article", { name: "证据验证结果" });
+  await expect(cards.first()).toContainText("证据验证：失败");
+  await expect(cards.nth(1)).toContainText("证据验证：通过");
 });

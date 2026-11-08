@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, sprint1/harness]
+    branches: [main, sprint1/harness, "sprint2/*"]
   pull_request:
-    branches: [main, sprint1/harness]
+    branches: [main, sprint1/harness, "sprint2/*"]
 
 jobs:
   harness-windows:
@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
-      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py -q
+      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py -q
 
   # ── Python backend ──────────────────────────────────────────────────────────
   backend-lint:
