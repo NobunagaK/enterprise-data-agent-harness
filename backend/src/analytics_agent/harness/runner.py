@@ -11,6 +11,7 @@ from langchain_core.tools import tool
 
 from analytics_agent.engines.sqlalchemy.engine import SQLAlchemyQueryEngine
 from analytics_agent.harness.models import Claim, Evidence, Run, Step, ValidationResult
+from analytics_agent.harness.trace import ModelTrace, finish, query_worker, recorded_claim
 from analytics_agent.harness.validation import validate_growth
 
 SALES_ROWS = [
@@ -28,7 +29,7 @@ GROUP BY store_id, year, currency ORDER BY year LIMIT 10"""
 def query_sales(run: Run) -> Evidence:
     """Run the fixed synthetic fixture through the application's real SQL tool."""
     started = perf_counter()
-    step = Step(kind="query")
+    step = Step(kind="query", status="running", started_at=datetime.now(UTC))
     run.steps.append(step)
     try:
         with tempfile.TemporaryDirectory(prefix="harness-sales-") as directory:
@@ -55,7 +56,7 @@ def query_sales(run: Run) -> Evidence:
         step.status, step.error = "error", "query_failed"
         raise
     finally:
-        step.duration_ms = round((perf_counter() - started) * 1000, 3)
+        finish(step, started)
 
 
 async def collect_agent_claim(run: Run) -> None:
@@ -71,7 +72,7 @@ async def collect_agent_claim(run: Run) -> None:
         """Query actual synthetic sales totals for demo-store in 2024 and 2025, in CNY cents."""
         # Reuse the first captured query; bound evidence size and calls.
         async with query_lock:
-            item = run.evidence[0] if run.evidence else await asyncio.to_thread(query_sales, run)
+            item = run.evidence[0] if run.evidence else await query_worker(query_sales, run)
         return item.model_dump_json()
 
     @tool
@@ -80,7 +81,7 @@ async def collect_agent_claim(run: Run) -> None:
         if run.claim is not None:
             return "A claim has already been submitted."
         run.claim = Claim(evidence_id=evidence_id, claimed_value=claimed_value, unit=unit)
-        run.steps.append(Step(kind="claim"))
+        recorded_claim(run)
         return "Claim recorded."
 
     llm = get_llm(streaming=False)
@@ -96,7 +97,7 @@ async def collect_agent_claim(run: Run) -> None:
                 {"role": "user", "content": "What is the 2025 annual sales growth for demo-store?"}
             ]
         },
-        config={"recursion_limit": 8},
+        config={"recursion_limit": 8, "callbacks": [ModelTrace(run)]},
     )
     for message in reversed(output["messages"]):
         if getattr(message, "type", "") == "ai" and not getattr(message, "tool_calls", None):
@@ -119,11 +120,11 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
         if run.source == "agent_generated":
             await asyncio.wait_for(collect_agent_claim(run), timeout=60)
         else:
-            item = await asyncio.to_thread(query_sales, run)
+            item = await query_worker(query_sales, run)
             run.claim = Claim(evidence_id=item.id, claimed_value=claimed_value)
-            run.steps.append(Step(kind="claim"))
+            recorded_claim(run)
         started = perf_counter()
-        step = Step(kind="validation")
+        step = Step(kind="validation", status="running", started_at=datetime.now(UTC))
         run.steps.append(step)
         try:
             run.result = validate_growth(run.id, run.claim, run.evidence)
@@ -131,11 +132,15 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
             step.status, step.error = "error", "validator_error"
             raise
         finally:
-            step.duration_ms = round((perf_counter() - started) * 1000, 3)
+            finish(step, started)
         run.state = "completed"
     except Exception as exc:
         # Exception text may include remote URLs or credentials. Store only safe codes.
         reason = "run_timeout" if isinstance(exc, TimeoutError) else "execution_error"
+        for active in run.steps:
+            if active.status == "running":
+                active.status, active.error = "error", reason
+                active.finished_at = datetime.now(UTC)
         if run.steps and run.steps[-1].error:
             reason = run.steps[-1].error
         run.result = ValidationResult(status="tool_error", reason=reason)
