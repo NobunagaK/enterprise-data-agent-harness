@@ -3,6 +3,7 @@
 import asyncio
 from datetime import UTC, datetime
 from time import perf_counter
+from uuid import UUID
 
 from langchain_core.callbacks import BaseCallbackHandler
 
@@ -39,7 +40,7 @@ class ModelTrace(BaseCallbackHandler):
 
     def __init__(self, run: Run):
         self.run = run
-        self.active = {}
+        self.active: dict[UUID, tuple[Step, float]] = {}
 
     def on_chat_model_start(self, serialized, messages, *, run_id, **kwargs):
         step = Step(kind="model", status="running", started_at=datetime.now(UTC))
