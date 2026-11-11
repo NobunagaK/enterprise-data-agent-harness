@@ -65,10 +65,15 @@ async def test_failed_case_retains_only_confirmed_run_and_later_cases_continue(
     sessions, monkeypatch, failure
 ):
     original_execute, original_save = runner.execute, store.save
+    cancelled_run_ids = []
 
     async def execute(run, value):
         if run.case_id == "b" and failure == "timeout":
-            await asyncio.Event().wait()  # Real cancellation after the initial commit.
+            try:
+                await asyncio.Event().wait()  # Real cancellation after the initial commit.
+            except asyncio.CancelledError:
+                cancelled_run_ids.append(run.id)
+                raise
         return await original_execute(run, value)
 
     async def save(session, run):
@@ -82,7 +87,10 @@ async def test_failed_case_retains_only_confirmed_run_and_later_cases_continue(
     monkeypatch.setattr(store, "save", save)
     ids = []
     for _ in range(2):  # Repeated case IDs must still identify the correct execution.
-        batch = await batch_module.run_batch(cases(), sessions, case_timeout_s=0.3)
+        # Storage failures are not performance tests. Only the timeout scenario
+        # needs a deadline; allow healthy real SQL/DB work time on Windows CI.
+        case_timeout_s = 5 if failure == "timeout" else None
+        batch = await batch_module.run_batch(cases(), sessions, case_timeout_s=case_timeout_s)
         first, failed, last = batch.outcomes
         assert first.result_status == last.result_status == "passed"
         assert failed.state == ("timeout" if failure == "timeout" else "error")
@@ -101,3 +109,5 @@ async def test_failed_case_retains_only_confirmed_run_and_later_cases_continue(
                 ids.append(failed.run_id)
     if ids:
         assert len(set(ids)) == 2
+    if failure == "timeout":
+        assert cancelled_run_ids == ids
