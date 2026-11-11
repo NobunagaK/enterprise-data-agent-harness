@@ -22,6 +22,8 @@ class Claim(BaseModel):
     store_id: str = "demo-store"
     previous_year: int = 2024
     current_year: int = 2025
+    # Total claims name one period; old growth claims omit this field.
+    year: int | None = Field(default=None, exclude_if=lambda value: value is None)
 
 
 class Evidence(BaseModel):
