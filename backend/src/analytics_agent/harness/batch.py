@@ -72,17 +72,26 @@ async def _run_one(
     conversation_id: str | None,
     case_timeout_s: float | None,
 ) -> CaseOutcome:
+    persisted_run_id: str | None = None
+
+    def remember_run(run_id: str) -> None:
+        nonlocal persisted_run_id
+        persisted_run_id = run_id
+
     try:
         async with session_factory() as session:
             request = case.to_request(conversation_id)
             if case_timeout_s is None:
-                run = await run_case(request, session)
+                run = await run_case(request, session, on_persisted=remember_run)
             else:
-                run = await asyncio.wait_for(run_case(request, session), timeout=case_timeout_s)
+                run = await asyncio.wait_for(
+                    run_case(request, session, on_persisted=remember_run), timeout=case_timeout_s
+                )
     except TimeoutError:
         return CaseOutcome(
             case_id=case.case_id,
             state="timeout",
+            run_id=persisted_run_id,
             reason="case_timeout",
             expected_status=case.expected_status,
         )
@@ -91,13 +100,15 @@ async def _run_one(
             case_id=case.case_id,
             state="error",
             reason="conversation_not_found",
+            run_id=persisted_run_id,
             expected_status=case.expected_status,
         )
-    except Exception as exc:  # persistence/cancellation of a worker must not stop the batch
+    except Exception as exc:  # Case failures are isolated; batch cancellation still propagates.
         return CaseOutcome(
             case_id=case.case_id,
             state="error",
             reason="case_error",
+            run_id=persisted_run_id,
             error_type=type(exc).__name__,
             expected_status=case.expected_status,
         )

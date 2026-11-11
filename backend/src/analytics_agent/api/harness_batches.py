@@ -32,11 +32,13 @@ def get_batch_session_factory():
 @router.post("", response_model=Batch, status_code=201)
 async def create_batch(
     body: BatchRequest,
-    session: AsyncSession = Depends(get_session),
     factory=Depends(get_batch_session_factory),
 ):
-    if body.conversation_id and await session.get(Conversation, body.conversation_id) is None:
-        raise HTTPException(404, "Conversation not found") from None
+    if body.conversation_id:
+        # Release the preflight connection before batch persistence/case sessions.
+        async with factory() as session:
+            if await session.get(Conversation, body.conversation_id) is None:
+                raise HTTPException(404, "Conversation not found") from None
     try:
         case_set = load_case_set(body.case_set_id)
     except CaseSetNotFound:

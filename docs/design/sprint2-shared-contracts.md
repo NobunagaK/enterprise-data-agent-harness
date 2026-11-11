@@ -92,7 +92,12 @@ report = await run_case(
 `run_case(request, session) -> Run` checks conversation existence, creates a fresh
 version-2 report, commits its initial snapshot, delegates to the existing runner,
 and commits the final snapshot. It commits the supplied session, so do not share
-that session with unrelated pending writes or concurrent cases. Internal callers
+that session with unrelated pending writes or concurrent cases. Batch callers use one
+new session per case, including sequential cases. Optional keyword-only
+`on_persisted(run_id)` is a synchronous notification immediately after the initial
+commit, so callers can retain the confirmed report identity if execution later
+times out or final persistence fails. It is not a completion notification and
+must not perform I/O. Failed initial persistence does not emit a notification. Internal callers
 must construct a validated `RunRequest`, not bypass validation with
 `model_construct`/unchecked copies. Request objects and their parameters are frozen.
 
@@ -275,7 +280,10 @@ claimed_value 是最多 64 字符的字符串。错误数值字符串仍进入�
 
 统一入口为 `await run_case(RunRequest(...), session)`：检查会话、创建版本 2 报告、保存初态、
 调用已有 runner、保存终态并返回。该函数会提交 session，调用者必须提供专用 session，
-不要与其他待提交业务或并发案例共用。内部调用者必须正常构造已验证的 RunRequest，不能绕过验证。
+不要与其他待提交业务或并发案例共用；批次即使顺序执行，也必须每个案例新建一个 session。
+可选关键字参数 on_persisted(run_id) 在初始提交成功后同步通知运行编号，供调用者在后续超时或
+终态保存失败时保留关联。它不是完成通知，不能执行 I/O；初始保存失败不发送通知。
+内部调用者必须正常构造已验证的 RunRequest，不能绕过验证。
 请求及嵌套参数不可原地修改。
 
 **每个案例一个 session：**功能④必须为每个案例创建并关闭专用 `AsyncSession`，串行案例也不例外。

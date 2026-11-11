@@ -115,11 +115,11 @@ async def test_middle_case_failure_does_not_block_later_cases(sessions, monkeypa
     real = batch_module.run_case
     seen: list[str] = []
 
-    async def flaky(request, session):
+    async def flaky(request, session, **kwargs):
         seen.append(request.case_id)
         if request.case_id == "b":
             raise RuntimeError("simulated storage failure")
-        return await real(request, session)
+        return await real(request, session, **kwargs)
 
     monkeypatch.setattr(batch_module, "run_case", flaky)
     batch = await batch_module.run_batch(
@@ -138,10 +138,10 @@ async def test_middle_case_failure_does_not_block_later_cases(sessions, monkeypa
 async def test_case_timeout_is_recorded_and_later_cases_continue(sessions, monkeypatch):
     real = batch_module.run_case
 
-    async def slow(request, session):
+    async def slow(request, session, **kwargs):
         if request.case_id == "b":
             raise TimeoutError
-        return await real(request, session)
+        return await real(request, session, **kwargs)
 
     monkeypatch.setattr(batch_module, "run_case", slow)
     batch = await batch_module.run_batch(
