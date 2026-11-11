@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { createHarnessRun, listHarnessRuns, type HarnessRun } from "@/api/harness";
+import { submitHarnessRun, listHarnessRuns, type HarnessRun } from "@/api/harness";
 import { ValidationResultCard } from "./ValidationResultCard";
 
 export function HarnessCheck({ conversationId }: { conversationId: string | null }) {
   const [runs, setRuns] = useState<HarnessRun[]>([]);
+  const [rule, setRule] = useState<"growth_rate" | "sales_total">("growth_rate");
   const [value, setValue] = useState("10");
   const [source, setSource] = useState<HarnessRun["source"]>("test_injected");
   const [busy, setBusy] = useState(false);
@@ -27,7 +28,9 @@ export function HarnessCheck({ conversationId }: { conversationId: string | null
     setBusy(true);
     setError("");
     try {
-      const run = await createHarnessRun(conversationId, source, value);
+      const run = await submitHarnessRun(rule === "sales_total"
+        ? { conversation_id: conversationId, source, claimed_value: value, rule_id: rule, unit: "CNY_cent" }
+        : { conversation_id: conversationId, source, claimed_value: value, rule_id: rule, unit: "percent" });
       if (mounted.current) setRuns(previous => [run, ...previous.filter(r => r.id !== run.id)].slice(0, 20));
     } catch (err) {
       if (mounted.current) setError(String(err));
@@ -39,18 +42,27 @@ export function HarnessCheck({ conversationId }: { conversationId: string | null
 
   return (
     <details className="border-t border-border px-4 py-2 shrink-0" data-print-hide>
-      <summary className="cursor-pointer text-sm font-medium">销售增长率验证 · Sprint 1</summary>
+      <summary className="cursor-pointer text-sm font-medium">销售证据验证 · Sprint 2</summary>
       <div className="space-y-3 mt-2 max-h-[45vh] overflow-y-auto">
         <p className="text-xs text-muted-foreground">
           固定合成数据：demo-store，2024 年 100 元、2025 年 110 元。本入口单独运行验证案例，不验证普通聊天中的任意答案。
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm">
+          <label>验证规则 <select aria-label="验证规则" className="bg-background border rounded p-1" value={rule} disabled={busy}
+            onChange={event => {
+              const next = event.target.value as "growth_rate" | "sales_total";
+              setRule(next);
+              setValue(next === "sales_total" ? "11000" : "10");
+            }}>
+            <option value="growth_rate">2024→2025 销售增长率</option>
+            <option value="sales_total">2025 销售总额（人民币分）</option>
+          </select></label>
           <label>声明来源 <select aria-label="声明来源" className="bg-background border rounded p-1" value={source} disabled={busy}
             onChange={event => setSource(event.target.value as HarnessRun["source"])}>
             <option value="test_injected">固定测试声明（无需模型）</option>
             <option value="agent_generated">真实模型（需先在 Settings 配置，可能产生费用）</option>
           </select></label>
-          {source === "test_injected" && <label>声明增长率（%） <input aria-label="声明增长率" className="bg-background border rounded p-1 w-24"
+          {source === "test_injected" && <label>{rule === "sales_total" ? "声明总额（分）" : "声明增长率（%）"} <input aria-label={rule === "sales_total" ? "声明总额" : "声明增长率"} className="bg-background border rounded p-1 w-24"
             value={value} maxLength={64} disabled={busy} onChange={event => setValue(event.target.value)} /></label>}
           <button className="bg-primary text-primary-foreground rounded px-3 py-1 disabled:opacity-50" disabled={busy || loading} onClick={execute}>
             {busy ? "运行中…" : "运行验证"}
@@ -59,7 +71,7 @@ export function HarnessCheck({ conversationId }: { conversationId: string | null
         {error && <p role="alert" className="text-red-500 text-sm">{error}</p>}
         <div aria-live="polite" aria-busy={busy} className="space-y-2">
           {runs.map(run => <ValidationResultCard key={run.id} run={run} />)}
-          {!runs.length && !busy && <p className="text-xs text-muted-foreground">暂无运行记录。输入 10 或 18.7 可分别检查通过和失败案例。</p>}
+          {!runs.length && !busy && <p className="text-xs text-muted-foreground">暂无运行记录。增长率输入 10 或 18.7；总额输入 11000 或 11001，可分别检查通过和失败案例。</p>}
         </div>
       </div>
     </details>

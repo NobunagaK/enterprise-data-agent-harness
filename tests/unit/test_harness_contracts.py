@@ -10,7 +10,7 @@ from analytics_agent.api.harness import router
 from analytics_agent.db.base import get_session
 from analytics_agent.db.models import Base, HarnessRun
 from analytics_agent.harness import runner, store
-from analytics_agent.harness.contracts import RunRequest
+from analytics_agent.harness.contracts import GrowthRunRequest
 from analytics_agent.harness.models import Run, Step, TokenUsage, ValidationResult
 from analytics_agent.harness.service import ConversationNotFound, run_case
 from fastapi import FastAPI
@@ -47,9 +47,11 @@ async def client(sessions):
 
 async def test_batch_caller_uses_public_service_with_distinct_runs(sessions):
     async with sessions() as session:
-        first = await run_case(RunRequest(case_id="growth-wrong", claimed_value="18.7"), session)
+        first = await run_case(
+            GrowthRunRequest(case_id="growth-wrong", claimed_value="18.7"), session
+        )
         second = await run_case(
-            RunRequest(case_id="growth-boundary", claimed_value="10.01"), session
+            GrowthRunRequest(case_id="growth-boundary", claimed_value="10.01"), session
         )
     assert first.id != second.id
     for report, expected in [(first, "failed"), (second, "passed")]:
@@ -94,7 +96,7 @@ async def test_legacy_and_explicit_requests_have_same_numerical_behavior(client)
 @pytest.mark.parametrize(
     "body",
     [
-        {"rule_id": "sales_total"},
+        {"rule_id": "unsupported_rule"},
         {"dataset_version": "sales-v2"},
         {"unit": "CNY_cent"},
         {"unit": "ratio"},
@@ -122,7 +124,7 @@ async def test_malformed_claim_remains_unverifiable_not_request_error(client):
 async def test_missing_conversation_consistent_for_service_and_http(sessions, client):
     async with sessions() as session:
         with pytest.raises(ConversationNotFound):
-            await run_case(RunRequest(conversation_id="missing"), session)
+            await run_case(GrowthRunRequest(conversation_id="missing"), session)
     assert (
         await client.post("/api/harness/runs", json={"conversation_id": "missing"})
     ).status_code == 404
@@ -156,7 +158,7 @@ async def test_cancellation_does_not_become_saved_success(sessions, monkeypatch)
     monkeypatch.setattr(runner, "execute", cancel)
     async with sessions() as session:
         with pytest.raises(asyncio.CancelledError):
-            await run_case(RunRequest(case_id="cancelled"), session)
+            await run_case(GrowthRunRequest(case_id="cancelled"), session)
     async with sessions() as session:
         rows = (await session.scalars(select(HarnessRun))).all()
         assert len(rows) == 1
@@ -176,7 +178,7 @@ async def test_final_save_failure_is_not_reported_as_persisted_success(sessions,
     monkeypatch.setattr(store, "save", fail_final)
     async with sessions() as session:
         with pytest.raises(RuntimeError, match="storage unavailable"):
-            await run_case(RunRequest(), session)
+            await run_case(GrowthRunRequest(), session)
 
 
 def test_amount_result_contract_has_no_percentage_aliases():

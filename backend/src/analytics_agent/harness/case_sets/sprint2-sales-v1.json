@@ -1,0 +1,67 @@
+{
+  "case_set_id": "sprint2-sales-v1",
+  "version": "1",
+  "dataset_version": "sales-v1",
+  "cases": [
+    {
+      "case_id": "growth-exact",
+      "claimed_value": "10",
+      "expected_status": "passed",
+      "note": "fixed fixture 2024=10000, 2025=11000; exact 10%"
+    },
+    {
+      "case_id": "growth-boundary-pass",
+      "claimed_value": "10.01",
+      "expected_status": "passed",
+      "note": "inclusive 0.01pp boundary"
+    },
+    {
+      "case_id": "growth-boundary-fail",
+      "claimed_value": "10.02",
+      "expected_status": "failed",
+      "note": "one step outside the frozen tolerance"
+    },
+    {
+      "case_id": "growth-wrong",
+      "claimed_value": "18.7",
+      "expected_status": "failed",
+      "note": "wrong percentage"
+    },
+    {
+      "case_id": "growth-sign-error",
+      "claimed_value": "-10",
+      "expected_status": "failed",
+      "note": "sign error on a positive growth"
+    },
+    {
+      "case_id": "growth-ratio-as-percent",
+      "claimed_value": "0.1",
+      "expected_status": "failed",
+      "note": "ratio value submitted as percent"
+    },
+    {
+      "case_id": "growth-malformed",
+      "claimed_value": "ten",
+      "expected_status": "unverifiable",
+      "note": "not a number; rejected by the validator, not the request"
+    },
+    {
+      "case_id": "growth-nan",
+      "claimed_value": "NaN",
+      "expected_status": "unverifiable",
+      "note": "non-finite claim"
+    },
+    {
+      "case_id": "growth-infinite",
+      "claimed_value": "1e999999",
+      "expected_status": "unverifiable",
+      "note": "finite but far outside the accepted magnitude"
+    },
+    {
+      "case_id": "growth-empty",
+      "claimed_value": "",
+      "expected_status": "unverifiable",
+      "note": "empty claim string"
+    }
+  ]
+}
