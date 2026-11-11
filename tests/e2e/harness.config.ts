@@ -6,7 +6,7 @@ import { join } from "node:path";
 const dataDir = mkdtempSync(join(tmpdir(), "harness-e2e-"));
 export default defineConfig({
   testDir: ".",
-  testMatch: "harness.spec.ts",
+  testMatch: ["harness.spec.ts", "harness-batch.spec.ts"],
   workers: 1,
   timeout: 30_000,
   use: {

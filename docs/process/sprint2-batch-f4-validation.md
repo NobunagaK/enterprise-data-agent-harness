@@ -31,6 +31,10 @@ pnpm build    # tsc --noEmit && vite build: passed
 pnpm lint     # 0 errors, 7 pre-existing warnings in unchanged files
 ```
 
+Browser: `tests/e2e/harness-batch.spec.ts` runs the bundled set through the panel, checks the
+four-category counts, opens a failed case into the result card, and reloads to confirm the
+batch history persists. It is picked up by `harness.config.ts` and executed in CI.
+
 The existing migration regression test upgrades to `head` twice; it now also asserts that
 `harness_batches` exists after migration `007`, and that an earlier row survives.
 
@@ -52,8 +56,8 @@ The existing migration regression test upgrades to `head` twice; it now also ass
 
 ## Not run / not claimed
 
-- Playwright or any browser flow for the batch panel (the existing single-run browser
-  flow is unchanged);
+- the batch Playwright spec is executed by CI (the E2E job), not by this local Windows
+  run; the existing single-run browser flow is unchanged;
 - full backend suite and MCP transport tests (local venv lacks the DataHub stack);
 - Windows CI and Docker build (remote);
 - any real-model execution. `agent_generated` cases would need provider credentials and a

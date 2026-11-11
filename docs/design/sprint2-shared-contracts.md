@@ -23,6 +23,18 @@ Do not copy validation logic into the batch module. Do not add batch aggregation
 to the runner. Changes to shared fields require a focused PR reviewed by both
 other developers. Feature branches start from main after this PR is merged.
 
+### F2/F4 integration order
+
+The first F4 increment supports `growth_rate` cases only. Mixed-rule batches are
+a later increment, not a capability of this shared-contract baseline. Zefeng must
+first implement and test F2's `sales_total` execution and extend `RunRequest` to a
+union discriminated by `rule_id`, with rule-specific parameters and units. Both
+Haoyu and Zikai review that shared-field change before integration. Zikai then
+adds mixed-rule case definitions and batch regression tests against the accepted
+contract, without copying formulas into batch orchestration. Existing growth
+requests and legacy report reads must remain compatible. See the sequencing and
+acceptance requirements in [the Sprint 2 integration plan](../sprint2.md).
+
 ## 2. Supported input contract
 
 `harness/contracts.py` is the Python input authority. HTTP accepts the same
@@ -88,6 +100,19 @@ times out or final persistence fails. It is not a completion notification and
 must not perform I/O. Failed initial persistence does not emit a notification. Internal callers
 must construct a validated `RunRequest`, not bypass validation with
 `model_construct`/unchecked copies. Request objects and their parameters are frozen.
+
+**One case, one session:** F4 must create and close a dedicated `AsyncSession` for
+each case, including sequential cases. Never reuse one session across an entire
+batch, share it between concurrent cases, or mix it with batch-summary writes.
+`run_case` owns its initial/final snapshot commits; the caller owns session
+lifetime and cleanup on success, failure and cancellation. Perform any batch
+conversation preflight in a short-lived session and release it before running
+cases. A case failure must not roll back earlier committed reports. F4 regression
+evidence must show that, when a middle case fails or times out after its initial
+save, earlier completed reports remain readable and a later case can complete
+and persist using a fresh session. Final-save failure must not be reported as a
+successfully persisted final report. These are batch acceptance requirements,
+not claims that PR #14 implements or has verified batch continuation.
 
 - Missing conversation: `ConversationNotFound`; HTTP translates it to 404.
 - Query/model/validator execution failure: existing runner produces `tool_error`.
@@ -227,6 +252,14 @@ Existing Issues #11 and #12 remain separate. No auto-merge is authorized by this
 批次模块不复制验证公式，runner 不处理批次汇总。共同字段变更通过小 PR，由另外两人评审。
 本 PR 合并后，各自从更新后的 main 开发。
 
+### 功能②/④接入顺序
+
+功能④第一版只支持 `growth_rate` 案例；混合规则批次属于后续增量，不是当前共同接口已具备的能力。
+先由 Zefeng 实现并测试功能②的 `sales_total` 执行，将 `RunRequest` 扩展为以 `rule_id` 区分的联合类型，
+分别约束各规则的参数和单位。共同字段变更先由 Haoyu、Zikai 两人评审，再进行集成。
+之后由 Zikai 按已接受的契约补充混合规则案例定义和批次回归测试，不在批次编排中复制验证公式。
+原有增长率请求和旧报告读取必须保持兼容。顺序及验收要求见 [Sprint 2 接入计划](../sprint2.md)。
+
 ## 2. 输入与调用方式
 
 Python 输入定义位于 `harness/contracts.py`，前端类型位于 `frontend/src/api/harness.ts`。
@@ -252,6 +285,14 @@ claimed_value 是最多 64 字符的字符串。错误数值字符串仍进入�
 终态保存失败时保留关联。它不是完成通知，不能执行 I/O；初始保存失败不发送通知。
 内部调用者必须正常构造已验证的 RunRequest，不能绕过验证。
 请求及嵌套参数不可原地修改。
+
+**每个案例一个 session：**功能④必须为每个案例创建并关闭专用 `AsyncSession`，串行案例也不例外。
+不能整批复用一个 session，不能在并发案例间共享，也不能混入批次汇总写入。
+`run_case` 负责初态/终态快照的提交；调用者负责 session 的生命周期及成功、失败、取消时的清理。
+批次会话存在性预检查应使用短生命周期 session，并在执行案例前释放。
+单个案例失败不得回滚前序已提交报告。功能④回归证据必须证明：中间案例在初态保存后失败或超时，
+前序已完成报告仍可读取，后续案例仍能使用新的 session 完成并持久化。
+终态保存失败不能报告为已成功保存终态。这些是批次验收要求，不代表 PR #14 已实现或验证批次继续执行。
 
 - 会话不存在：服务抛 ConversationNotFound，HTTP 转为 404。
 - SQL、模型或验证执行异常：已有 runner 返回 tool_error 报告。
