@@ -1,5 +1,8 @@
 # Sprint 2 shared contracts
 
+> F2 implementation update: see [sales verification](sprint2-verification-f2.md) for the executable total rule, discriminated requests, Python caller migration and test evidence. The original planning/baseline text below is retained for context.
+> 功能②实现更新：总额规则、联合请求、Python 调用迁移及测试证据见上述链接；下文保留原计划/基线记录。
+
 Status: implementation proposal for peer review, not a completed Sprint 2 acceptance.
 Base: `main@8359a46827f48936a2e110e939061bff78f11e6f`.
 Owner: Zefeng Chen, with Codex assistance. Reviewers: Haoyu Shen and Zikai He;

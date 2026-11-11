@@ -129,7 +129,11 @@ async def test_validator_error_is_not_claim_failure(monkeypatch):
     def broken(*args):
         raise ValueError("do-not-leak-this-secret")
 
-    monkeypatch.setattr(runner, "validate_growth", broken)
+    from dataclasses import replace
+
+    monkeypatch.setitem(
+        runner.RULES, "growth_rate", replace(runner.RULES["growth_rate"], validate=broken)
+    )
     run = await runner.execute(Run(source="test_injected"))
     assert run.state == "error"
     assert run.result.status == "tool_error"

@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
-      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py -q
+      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py tests/unit/test_harness_verification.py -q
 
   # ── Python backend ──────────────────────────────────────────────────────────
   backend-lint:

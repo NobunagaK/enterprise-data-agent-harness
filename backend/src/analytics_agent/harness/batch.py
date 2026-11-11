@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from analytics_agent.harness import batch_store
 from analytics_agent.harness.batch_models import Batch, BatchCounts, CaseOutcome
-from analytics_agent.harness.cases import CaseDefinition, CaseSet
+from analytics_agent.harness.cases import CaseSet, EvaluationCase
 from analytics_agent.harness.service import ConversationNotFound, run_case
 
 RESULTS = ("passed", "failed", "unverifiable", "tool_error")
@@ -60,14 +60,14 @@ def count_outcomes(outcomes: list[CaseOutcome]) -> BatchCounts:
     return counts
 
 
-def _matches(case: CaseDefinition, status: str | None) -> bool | None:
+def _matches(case: EvaluationCase, status: str | None) -> bool | None:
     if case.expected_status is None or status is None:
         return None
     return status == case.expected_status
 
 
 async def _run_one(
-    case: CaseDefinition,
+    case: EvaluationCase,
     session_factory: async_sessionmaker[AsyncSession],
     conversation_id: str | None,
     case_timeout_s: float | None,
