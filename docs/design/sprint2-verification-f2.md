@@ -107,6 +107,13 @@ mismatch, exact large integers, model/SQL/validator errors, stale results, mixed
 batches and legacy snapshots. Windows CI includes the new test module; remote
 results must be read on this PR, not inferred from the local run.
 
+The initial Windows push run (job 130737312055) passed 156 tests and failed two
+existing lifecycle scenarios because their 0.3-second budget cancelled healthy
+cases. This branch reuses the lifecycle-test fix from #22: only the deliberately
+blocked timeout scenario has a five-second test budget, storage-failure scenarios
+have no artificial deadline, and cancellation IDs are asserted. Application
+timeouts are unchanged; Playwright provisioning changes remain in #22.
+
 Configured-provider total execution is wired through the existing LLM adapter,
 with `query_demo_sales` and `submit_total_claim`. Local model doubles verify tool
 orchestration and ensure injected values are ignored in `agent_generated` mode.
@@ -168,6 +175,9 @@ Python 调用改用 `GrowthRunRequest(...)`、`SalesTotalRunRequest(...)` 或
 前端 62 项通过；完整浏览器测试 38 项通过；构建、Ruff、mypy 通过，前端 lint 无错误、保留 7 条原有警告。
 浏览器验证了总额通过、差一分失败、小数分无法验证、真实 SQL、刷新后历史保留和切回增长率。
 Windows CI 已加入新测试文件，实际远程结果以 PR 为准。
+首次 Windows 推送检查 156 项通过、两项旧生命周期测试失败，原因是旧 0.3 秒限制取消了正常案例。
+本分支复用 #22 的该测试修复：只有故意阻塞的超时场景设置 5 秒测试预算，存储失败场景不附加截止时间，
+并断言实际被取消的运行编号。应用超时设置不变；Playwright 环境修复仍在 #22。
 
 真实模型入口已接入现有适配器，模型替身验证了工具编排和忽略测试注入值的行为；未宣称真实供应商调用、
 Windows 整套实机验收已完成。
