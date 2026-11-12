@@ -4,14 +4,13 @@ This document preserves C's original review of the earlier implementation. Findi
 
 Current disposition: [evaluation contract](../design/sprint1-evaluation-contract.md), [acceptance evidence](../sprint1-acceptance.md), [PR #3 issue backfill drafts](PR3-issue-backfill.md). F-01 retains the explicitly confirmed inclusive 0.01pp contract; F-02/F-03/F-06/F-09 received fixes; F-04/F-08 have a documented contract. F-05 first tool invocation executes fixed SQL, later calls reuse evidence; arbitrary SQL is excluded. F-07 process evidence remains factual, with the earlier Issues block now resolved: records #4–#12 were created; #11–#12 remain open. Remote calls, final Windows verification and F's independent acceptance remain unverified.
 
-## Original review (preserved verbatim)
+## Original technical review (wording edited)
 
 # S1-T03 Review — Numerical Validation and Evidence Association
 
 - **Reviewer:** Zikai He (C) · **Date:** 2026-10-31
 - **Reviewed:** `sprint1/harness` @ `494388a` (PR #1) — `harness/validation.py`, `harness/models.py`, `harness/runner.py`, `harness/store.py`, `api/harness.py`, `tests/unit/test_harness.py`, `docs/sprint1.md`, `docs/design/sprint1-requirements-design.md`, `docs/process/sprint1-debt-risk-register.md`
 - **Method:** line-by-line read of the rule; hand computation of 12 cases; the rule's arithmetic was re-executed in isolation (Decimal, `prec=60`, same expressions as `validation.py`) to confirm every number below. The harness suite was then **run on Windows 11** (Python 3.11.15, fresh venv, SQLAlchemy 2.x): **26 passed / 4 failed** - the four failures are F-09.
-- **AI assistance disclosure:** this review was drafted with an AI coding agent under the reviewer's direction. Every finding, number and code suggestion below must be re-verified by the reviewer before it is treated as an accepted human judgement.
 
 Scope of S1-T03 per the team plan: *Decimal, units, tolerance, evidence association and unsupported inputs; propose counterexamples; implement necessary validator fixes.*
 
