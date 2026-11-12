@@ -20,6 +20,13 @@ test("batch runs the bundled set, isolates outcomes and survives reload", async 
   await expect(card).toContainText("证据验证：失败");
   await expect(card).toContainText("计算结果：10.00%");
 
+  await card.getByText("查看 SQL、证据与执行步骤", { exact: true }).click();
+  const trace = card.getByRole("region", { name: "执行轨迹" });
+  await expect(trace).toContainText("SQL 查询 · 已完成");
+  await trace.getByText("查看对应 SQL 与证据", { exact: true }).click();
+  await expect(trace).toContainText("声明引用的证据");
+  await expect(trace.locator("pre")).toHaveCount(1);
+
   await page.reload();
   await page.getByText("批量评测 · Sprint 2", { exact: true }).click();
   await expect(page.getByText("完成 10/10", { exact: true })).toBeVisible();
