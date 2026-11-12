@@ -12,7 +12,10 @@ from langchain_core.tools import tool
 from analytics_agent.engines.sqlalchemy.engine import SQLAlchemyQueryEngine
 from analytics_agent.harness.models import Evidence, Run, Step
 from analytics_agent.harness.rules import RULES, SALES_SQL  # noqa: F401 (legacy import)
+from analytics_agent.harness.trace import ModelTrace, finish, query_worker, recorded_claim
 from analytics_agent.harness.validation import rule_result
+
+MODEL_TIMEOUT_SECONDS = 60
 
 SALES_ROWS = [
     (1, "demo-store", 2024, 4000, "CNY"),
@@ -26,7 +29,7 @@ def query_sales(run: Run) -> Evidence:
     """Run the fixed synthetic fixture through the application's real SQL tool."""
     sql = RULES[run.rule_id].sql
     started = perf_counter()
-    step = Step(kind="query")
+    step = Step(kind="query", status="running", started_at=datetime.now(UTC))
     run.steps.append(step)
     try:
         with tempfile.TemporaryDirectory(prefix="harness-sales-") as directory:
@@ -53,7 +56,7 @@ def query_sales(run: Run) -> Evidence:
         step.status, step.error = "error", "query_failed"
         raise
     finally:
-        step.duration_ms = round((perf_counter() - started) * 1000, 3)
+        finish(step, started)
 
 
 async def collect_agent_claim(run: Run) -> None:
@@ -70,7 +73,7 @@ async def collect_agent_claim(run: Run) -> None:
         """Query actual synthetic sales for the selected task scope, in CNY cents."""
         # Reuse the first captured query; bound evidence size and calls.
         async with query_lock:
-            item = run.evidence[0] if run.evidence else await asyncio.to_thread(query_sales, run)
+            item = run.evidence[0] if run.evidence else await query_worker(query_sales, run)
         return item.model_dump_json()
 
     @tool(rule.claim_tool)
@@ -78,28 +81,45 @@ async def collect_agent_claim(run: Run) -> None:
         """Submit the task's calculated value and unit, referencing query_demo_sales evidence."""
         if run.claim is not None:
             return "A claim has already been submitted."
-        run.claim = rule.claim(evidence_id, claimed_value, unit)
-        run.steps.append(Step(kind="claim"))
+        recorded_claim(run, lambda: rule.claim(evidence_id, claimed_value, unit))
         return "Claim recorded."
 
-    llm = get_llm(streaming=False)
-    run.model = str(getattr(llm, "model_name", getattr(llm, "model", "configured-model")))
-    agent = create_agent(
-        model=llm,
-        tools=[query_demo_sales, submit_claim],
-        system_prompt=(
-            f"You analyse synthetic sales. Task: {rule.question} "
-            f"Call query_demo_sales, calculate from its rows, then call {rule.claim_tool} "
-            f"with the evidence ID, your computed value as a string and unit {rule.unit}. "
-            "Do not invent evidence. If unable to calculate, explain why without submitting a claim."
-        ),
-    )
-    output = await agent.ainvoke(
-        {"messages": [{"role": "user", "content": rule.question}]},
-        config={"recursion_limit": 8},
-    )
+    setup_started = perf_counter()
+    setup_step = Step(kind="tool", status="running", started_at=datetime.now(UTC))
+    run.steps.append(setup_step)
+    try:
+        llm = get_llm(streaming=False)
+        run.model = str(getattr(llm, "model_name", getattr(llm, "model", "configured-model")))
+        agent = create_agent(
+            model=llm,
+            tools=[query_demo_sales, submit_claim],
+            system_prompt=(
+                f"You analyse synthetic sales. Task: {rule.question} "
+                f"Call query_demo_sales, calculate from its rows, then call {rule.claim_tool} "
+                f"with the evidence ID, your computed value as a string and unit {rule.unit}. "
+                "Do not invent evidence. If unable to calculate, explain why without submitting a claim."
+            ),
+        )
+    except Exception:
+        setup_step.status, setup_step.error = "error", "model_configuration_error"
+        raise
+    finally:
+        finish(setup_step, setup_started)
+    trace = ModelTrace(run)
+    try:
+        output = await agent.ainvoke(
+            {"messages": [{"role": "user", "content": rule.question}]},
+            config={"recursion_limit": 8, "callbacks": [trace]},
+        )
+    finally:
+        # Provider callbacks can be missing on cancellation or transport failure.
+        task = asyncio.current_task()
+        trace.close_active("model_cancelled" if task and task.cancelling() else "model_error")
     for message in reversed(output["messages"]):
         if getattr(message, "type", "") == "ai" and not getattr(message, "tool_calls", None):
+            answer_started = perf_counter()
+            answer_step = Step(kind="answer", status="running", started_at=datetime.now(UTC))
+            run.steps.append(answer_step)
             content = message.content
             text = (
                 content
@@ -111,19 +131,21 @@ async def collect_agent_claim(run: Run) -> None:
                 )
             )
             run.answer, run.answer_truncated = text[:8000], len(text) > 8000
+            finish(answer_step, answer_started)
             break
 
 
 async def execute(run: Run, claimed_value: str = "10") -> Run:
+    model_deadline: asyncio.Timeout | None = None
     try:
         if run.source == "agent_generated":
-            await asyncio.wait_for(collect_agent_claim(run), timeout=60)
+            async with asyncio.timeout(MODEL_TIMEOUT_SECONDS) as model_deadline:
+                await collect_agent_claim(run)
         else:
-            item = await asyncio.to_thread(query_sales, run)
-            run.claim = RULES[run.rule_id].claim(item.id, claimed_value)
-            run.steps.append(Step(kind="claim"))
+            item = await query_worker(query_sales, run)
+            recorded_claim(run, lambda: RULES[run.rule_id].claim(item.id, claimed_value))
         started = perf_counter()
-        step = Step(kind="validation")
+        step = Step(kind="validation", status="running", started_at=datetime.now(UTC))
         run.steps.append(step)
         try:
             run.result = RULES[run.rule_id].validate(run.id, run.claim, run.evidence)
@@ -131,12 +153,30 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
             step.status, step.error = "error", "validator_error"
             raise
         finally:
-            step.duration_ms = round((perf_counter() - started) * 1000, 3)
+            finish(step, started)
         run.state = "completed"
-    except Exception as exc:
+    except asyncio.CancelledError:
+        # The service still propagates cancellation without claiming a final
+        # persisted snapshot; close observable in-memory events before leaving.
+        for active in run.steps:
+            if active.status == "running":
+                active.status, active.error = "error", "run_cancelled"
+                active.finished_at = datetime.now(UTC)
+        run.state = "error"
+        run.result = rule_result(run.rule_id, "tool_error", "run_cancelled")
+        run.finished_at = datetime.now(UTC)
+        raise
+    except Exception:
         # Exception text may include remote URLs or credentials. Store only safe codes.
-        reason = "run_timeout" if isinstance(exc, TimeoutError) else "execution_error"
-        if run.steps and run.steps[-1].error:
+        # A provider may raise TimeoutError before our deadline. Only this
+        # boundary's expiry establishes that the overall model budget elapsed.
+        deadline_expired = model_deadline is not None and model_deadline.expired()
+        reason = "run_timeout" if deadline_expired else "execution_error"
+        for active in run.steps:
+            if active.status == "running":
+                active.status, active.error = "error", reason
+                active.finished_at = datetime.now(UTC)
+        if not deadline_expired and run.steps and run.steps[-1].error:
             reason = run.steps[-1].error
         run.result = rule_result(run.rule_id, "tool_error", reason)
         run.state = "error"
