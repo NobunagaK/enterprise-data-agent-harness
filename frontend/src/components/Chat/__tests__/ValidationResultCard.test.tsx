@@ -25,7 +25,7 @@ describe("report contract rendering", () => {
     expect(html).toContain("容差：0.01 个百分点");
     expect(html).toContain("测试注入声明（非真实模型答案）");
   });
-  it("renders reserved amount result units without claiming the rule is executable", () => {
+  it("renders amount results in cents without percentage aliases", () => {
     const run: HarnessRun = {
       ...legacy,
       schema_version: 2,

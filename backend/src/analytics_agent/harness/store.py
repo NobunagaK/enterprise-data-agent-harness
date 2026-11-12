@@ -4,7 +4,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from analytics_agent.db.models import HarnessRun
-from analytics_agent.harness.models import Run, ValidationResult
+from analytics_agent.harness.models import Run
+from analytics_agent.harness.validation import rule_result
 
 STALE_AFTER_SECONDS = 300
 
@@ -44,7 +45,7 @@ async def reconcile(session: AsyncSession, row: HarnessRun) -> Run:
         return run
     run.state = "error"
     run.finished_at = now  # Detection time; started_at remains unchanged.
-    run.result = ValidationResult(status="tool_error", reason="stale_running")
+    run.result = rule_result(run.rule_id, "tool_error", "stale_running")
     await session.execute(
         update(HarnessRun)
         .where(HarnessRun.id == run.id, HarnessRun.report == snapshot)

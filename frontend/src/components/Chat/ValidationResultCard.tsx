@@ -15,6 +15,15 @@ const reasons: Record<string, string> = {
   stale_running: "运行超过 5 分钟仍未完成，已标记为工具错误；可重新运行。",
   evidence_type_drift: "查询返回了不支持或非有限的金额类型。",
   non_integral_amount: "金额包含不足一分的小数，无法验证。",
+  unsupported_unit: "声明或证据的单位与规则不匹配。",
+  unsupported_scope: "声明的门店或年份不在本规则范围内。",
+  unsupported_dataset: "证据的数据版本不受本规则支持。",
+  missing_or_ambiguous_periods: "缺少所需期间的数据，或存在重复期间。",
+  evidence_scope_mismatch: "证据的门店、年份或币种与声明不匹配。",
+  missing_or_invalid_amount: "证据中缺少有效金额。",
+  negative_amount_unsupported: "当前规则不支持负销售额证据。",
+  invalid_claim_value: "声明不是支持范围内的有限十进制数值。",
+  non_integral_claim: "总额声明必须为整数分，不能通过舍入补齐。",
   run_timeout: "运行超过 60 秒限制。",
 };
 

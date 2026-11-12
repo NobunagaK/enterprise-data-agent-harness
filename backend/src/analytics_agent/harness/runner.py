@@ -10,8 +10,9 @@ from time import perf_counter
 from langchain_core.tools import tool
 
 from analytics_agent.engines.sqlalchemy.engine import SQLAlchemyQueryEngine
-from analytics_agent.harness.models import Claim, Evidence, Run, Step, ValidationResult
-from analytics_agent.harness.validation import validate_growth
+from analytics_agent.harness.models import Evidence, Run, Step
+from analytics_agent.harness.rules import RULES, SALES_SQL  # noqa: F401 (legacy import)
+from analytics_agent.harness.validation import rule_result
 
 SALES_ROWS = [
     (1, "demo-store", 2024, 4000, "CNY"),
@@ -19,14 +20,11 @@ SALES_ROWS = [
     (3, "demo-store", 2025, 5000, "CNY"),
     (4, "demo-store", 2025, 6000, "CNY"),
 ]
-SALES_SQL = """SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents
-FROM sales_records
-WHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)
-GROUP BY store_id, year, currency ORDER BY year LIMIT 10"""
 
 
 def query_sales(run: Run) -> Evidence:
     """Run the fixed synthetic fixture through the application's real SQL tool."""
+    sql = RULES[run.rule_id].sql
     started = perf_counter()
     step = Step(kind="query")
     run.steps.append(step)
@@ -41,14 +39,14 @@ def query_sales(run: Run) -> Evidence:
             engine = SQLAlchemyQueryEngine({"url": f"sqlite:///{db}"})
             try:
                 query = next(t for t in engine.get_tools() if t.name == "execute_sql")
-                output = json.loads(query.invoke({"sql": SALES_SQL}))
+                output = json.loads(query.invoke({"sql": sql}))
             finally:
                 # This synchronous helper owns its engine and runs in a worker thread.
                 if engine._engine is not None:
                     engine._engine.dispose()
             if "error" in output:
                 raise RuntimeError("query_failed")
-            evidence = Evidence(run_id=run.id, step_id=step.id, sql=SALES_SQL, **output)
+            evidence = Evidence(run_id=run.id, step_id=step.id, sql=sql, **output)
             run.evidence.append(evidence)
             return evidence
     except Exception:
@@ -64,22 +62,23 @@ async def collect_agent_claim(run: Run) -> None:
 
     from analytics_agent.agent.llm import get_llm
 
+    rule = RULES[run.rule_id]
     query_lock = asyncio.Lock()
 
     @tool
     async def query_demo_sales() -> str:
-        """Query actual synthetic sales totals for demo-store in 2024 and 2025, in CNY cents."""
+        """Query actual synthetic sales for the selected task scope, in CNY cents."""
         # Reuse the first captured query; bound evidence size and calls.
         async with query_lock:
             item = run.evidence[0] if run.evidence else await asyncio.to_thread(query_sales, run)
         return item.model_dump_json()
 
-    @tool
-    async def submit_growth_claim(evidence_id: str, claimed_value: str, unit: str) -> str:
-        """Submit the annual sales growth percentage, referencing query_demo_sales evidence."""
+    @tool(rule.claim_tool)
+    async def submit_claim(evidence_id: str, claimed_value: str, unit: str) -> str:
+        """Submit the task's calculated value and unit, referencing query_demo_sales evidence."""
         if run.claim is not None:
             return "A claim has already been submitted."
-        run.claim = Claim(evidence_id=evidence_id, claimed_value=claimed_value, unit=unit)
+        run.claim = rule.claim(evidence_id, claimed_value, unit)
         run.steps.append(Step(kind="claim"))
         return "Claim recorded."
 
@@ -87,15 +86,16 @@ async def collect_agent_claim(run: Run) -> None:
     run.model = str(getattr(llm, "model_name", getattr(llm, "model", "configured-model")))
     agent = create_agent(
         model=llm,
-        tools=[query_demo_sales, submit_growth_claim],
-        system_prompt="You analyse synthetic sales. Query demo-store sales for 2024 and 2025 using query_demo_sales, calculate annual growth, then call submit_growth_claim with the evidence ID, your computed value as a string and unit percent. Do not invent evidence. If unable to calculate, explain why without submitting a claim.",
+        tools=[query_demo_sales, submit_claim],
+        system_prompt=(
+            f"You analyse synthetic sales. Task: {rule.question} "
+            f"Call query_demo_sales, calculate from its rows, then call {rule.claim_tool} "
+            f"with the evidence ID, your computed value as a string and unit {rule.unit}. "
+            "Do not invent evidence. If unable to calculate, explain why without submitting a claim."
+        ),
     )
     output = await agent.ainvoke(
-        {
-            "messages": [
-                {"role": "user", "content": "What is the 2025 annual sales growth for demo-store?"}
-            ]
-        },
+        {"messages": [{"role": "user", "content": rule.question}]},
         config={"recursion_limit": 8},
     )
     for message in reversed(output["messages"]):
@@ -120,13 +120,13 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
             await asyncio.wait_for(collect_agent_claim(run), timeout=60)
         else:
             item = await asyncio.to_thread(query_sales, run)
-            run.claim = Claim(evidence_id=item.id, claimed_value=claimed_value)
+            run.claim = RULES[run.rule_id].claim(item.id, claimed_value)
             run.steps.append(Step(kind="claim"))
         started = perf_counter()
         step = Step(kind="validation")
         run.steps.append(step)
         try:
-            run.result = validate_growth(run.id, run.claim, run.evidence)
+            run.result = RULES[run.rule_id].validate(run.id, run.claim, run.evidence)
         except Exception:
             step.status, step.error = "error", "validator_error"
             raise
@@ -138,7 +138,7 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
         reason = "run_timeout" if isinstance(exc, TimeoutError) else "execution_error"
         if run.steps and run.steps[-1].error:
             reason = run.steps[-1].error
-        run.result = ValidationResult(status="tool_error", reason=reason)
+        run.result = rule_result(run.rule_id, "tool_error", reason)
         run.state = "error"
     run.finished_at = datetime.now(UTC)
     return run

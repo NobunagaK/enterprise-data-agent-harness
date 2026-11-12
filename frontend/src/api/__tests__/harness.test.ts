@@ -24,6 +24,15 @@ describe("shared Harness client", () => {
     expect(await submitHarnessRun(body)).toEqual({ id: "run-1" });
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual(body);
   });
+  it("submits a total claim with its own units and period without numeric coercion", async () => {
+    respond();
+    const body = {
+      rule_id: "sales_total", unit: "CNY_cent", claimed_value: "11000.0000000000000001",
+      parameters: { store_id: "demo-store", year: 2025 },
+    } as const;
+    await submitHarnessRun(body);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual(body);
+  });
   it("encodes a report identity as one path segment", async () => {
     respond();
     await getHarnessRun("a/b?x=1");
