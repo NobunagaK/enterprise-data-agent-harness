@@ -1,5 +1,7 @@
 """Batch evaluation: case loading, isolation, aggregation and persistence."""
 
+import asyncio
+
 import pytest
 from analytics_agent.api.harness_batches import get_batch_session_factory
 from analytics_agent.api.harness_batches import router as batches_router
@@ -138,19 +140,27 @@ async def test_middle_case_failure_does_not_block_later_cases(sessions, monkeypa
 
 async def test_case_timeout_is_recorded_and_later_cases_continue(sessions, monkeypatch):
     real = batch_module.run_case
+    cancelled = asyncio.Event()
 
     async def slow(request, session, **kwargs):
         if request.case_id == "b":
-            raise TimeoutError
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
         return await real(request, session, **kwargs)
 
     monkeypatch.setattr(batch_module, "run_case", slow)
     batch = await batch_module.run_batch(
         mini(case("a", "10"), case("b", "10"), case("c", "10")),
         sessions,
-        case_timeout_s=0.5,
+        # Exercise a real deadline without imposing a subsecond limit on the
+        # healthy SQL/database cases, especially on shared Windows CI runners.
+        case_timeout_s=5,
     )
 
+    assert cancelled.is_set()
     assert [item.state for item in batch.outcomes] == ["completed", "timeout", "completed"]
     assert batch.outcomes[1].reason == "case_timeout"
     assert batch.counts.timeout == 1
@@ -210,7 +220,13 @@ async def test_batch_api_rejects_unknown_fields_and_sets(client):
 
 
 @pytest.mark.parametrize("source", ["test_injected", "agent_generated"])
-async def test_batch_api_rejects_source_override_before_execution(client, sessions, source):
+async def test_batch_api_rejects_source_override_before_execution(
+    client, sessions, monkeypatch, source
+):
+    async def unexpected_execution(*args, **kwargs):
+        pytest.fail("A source override must be rejected before batch execution")
+
+    monkeypatch.setattr("analytics_agent.api.harness_batches.run_batch", unexpected_execution)
     response = await client.post("/api/harness/batches", json={"source": source})
 
     assert response.status_code == 422

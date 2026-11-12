@@ -1,5 +1,8 @@
 # Sprint 2 integration plan
 
+> F2 implementation update: see [sales verification](design/sprint2-verification-f2.md) for the executable total rule, discriminated requests, Python caller migration and test evidence. The original planning/baseline text below is retained for context.
+> 功能②实现更新：总额规则、联合请求、Python 调用迁移及测试证据见上述链接；下文保留原计划/基线记录。
+
 Status: scoped planning clarification for PR #14 peer review. This document
 records the F2/F4 dependency order and session isolation requirements; it is not
 a complete Sprint 2 backlog or evidence of completed feature acceptance.

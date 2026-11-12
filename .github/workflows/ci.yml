@@ -10,13 +10,14 @@ jobs:
   harness-windows:
     name: Harness — Windows lifecycle regression
     runs-on: windows-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
-      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py -q
+      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py tests/unit/test_harness_verification.py tests/unit/test_harness_trace.py -q
 
   # ── Python backend ──────────────────────────────────────────────────────────
   backend-lint:
@@ -79,8 +80,11 @@ jobs:
   # ── Playwright e2e ──────────────────────────────────────────────────────────
   e2e:
     name: E2E — Playwright
-    # Playwright 1.59.1 cannot install Chromium dependencies on Ubuntu 26.04.
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # Keep this version aligned with frontend/pnpm-lock.yaml. The official image
+    # bundles browsers and OS libraries, avoiding runtime apt mirror/DNS failures.
+    container: mcr.microsoft.com/playwright:v1.59.1-noble
     steps:
       - uses: actions/checkout@v4
 
@@ -109,9 +113,6 @@ jobs:
 
       - name: Build frontend
         run: cd frontend && pnpm build
-
-      - name: Install Playwright browsers
-        run: cd frontend && npx playwright install chromium --with-deps
 
       - name: Run e2e tests
         run: npx --prefix frontend playwright test --config tests/e2e/playwright.config.ts

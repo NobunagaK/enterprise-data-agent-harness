@@ -3,13 +3,16 @@ export type ValidationStatus = "passed" | "failed" | "unverifiable" | "tool_erro
 export type ValueUnit = "percent" | "CNY_cent";
 
 // Only currently executable capabilities belong in this request type.
-export interface HarnessRunRequest {
+interface CommonRunRequest {
   source?: HarnessSource;
   claimed_value?: string;
   conversation_id?: string | null;
   case_id?: string | null;
-  rule_id?: "growth_rate";
   dataset_version?: "sales-v1";
+}
+
+export interface GrowthRunRequest extends CommonRunRequest {
+  rule_id?: "growth_rate";
   unit?: "percent";
   parameters?: {
     store_id?: "demo-store";
@@ -17,6 +20,14 @@ export interface HarnessRunRequest {
     current_year?: 2025;
   };
 }
+
+export interface SalesTotalRunRequest extends CommonRunRequest {
+  rule_id: "sales_total";
+  unit?: "CNY_cent";
+  parameters?: { store_id?: "demo-store"; year?: 2025 };
+}
+
+export type HarnessRunRequest = GrowthRunRequest | SalesTotalRunRequest;
 
 export interface HarnessStep {
   id: string;
@@ -69,7 +80,7 @@ export interface HarnessRun {
   evidence: HarnessEvidence[];
   claim: {
     evidence_id: string; claimed_value: string; unit: string;
-    store_id?: string; previous_year?: number; current_year?: number;
+    store_id?: string; previous_year?: number; current_year?: number; year?: number | null;
   } | null;
   result: HarnessValidationResult | null;
 }

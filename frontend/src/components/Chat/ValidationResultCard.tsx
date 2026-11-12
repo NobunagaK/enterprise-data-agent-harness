@@ -1,5 +1,5 @@
+import { TracePanel } from "./TracePanel";
 import type { HarnessRun } from "@/api/harness";
-import { SqlMessage } from "./messages/SqlMessage";
 
 const labels = { passed: "通过", failed: "失败", unverifiable: "无法验证", tool_error: "工具错误" };
 const reasons: Record<string, string> = {
@@ -9,12 +9,26 @@ const reasons: Record<string, string> = {
   zero_denominator: "上期销售额为零，普通同比公式不适用。",
   evidence_not_found_or_wrong_run: "证据不存在，或不属于本次运行。",
   truncated_evidence: "查询证据被截断，无法完整验证。",
+  model_configuration_error: "模型配置或初始化失败，请检查 Settings 中的配置。",
+  model_error: "模型调用失败，可展开轨迹查看失败步骤。",
+  model_cancelled: "模型调用已取消。",
+  run_cancelled: "运行已取消。",
+  claim_error: "结构化声明记录失败。",
   execution_error: "执行失败；请检查模型配置或服务状态。",
   query_failed: "查询执行失败。",
   validator_error: "验证器发生内部错误。",
   stale_running: "运行超过 5 分钟仍未完成，已标记为工具错误；可重新运行。",
   evidence_type_drift: "查询返回了不支持或非有限的金额类型。",
   non_integral_amount: "金额包含不足一分的小数，无法验证。",
+  unsupported_unit: "声明或证据的单位与规则不匹配。",
+  unsupported_scope: "声明的门店或年份不在本规则范围内。",
+  unsupported_dataset: "证据的数据版本不受本规则支持。",
+  missing_or_ambiguous_periods: "缺少所需期间的数据，或存在重复期间。",
+  evidence_scope_mismatch: "证据的门店、年份或币种与声明不匹配。",
+  missing_or_invalid_amount: "证据中缺少有效金额。",
+  negative_amount_unsupported: "当前规则不支持负销售额证据。",
+  invalid_claim_value: "声明不是支持范围内的有限十进制数值。",
+  non_integral_claim: "总额声明必须为整数分，不能通过舍入补齐。",
   run_timeout: "运行超过 60 秒限制。",
 };
 
@@ -41,15 +55,8 @@ export function ValidationResultCard({ run }: { run: HarnessRun }) {
       <details>
         <summary className="cursor-pointer">查看 SQL、证据与执行步骤</summary>
         <div className="mt-2 space-y-3">
-          <p className="text-xs break-all">运行 ID：{run.id}</p>
           <p className="text-xs">{run.started_at} → {run.finished_at ?? "尚未结束"}</p>
-          {run.steps.map(step => <p key={step.id} className="text-xs">
-            {step.kind} · {step.status} · {step.duration_ms == null ? "耗时未记录" : `${step.duration_ms.toFixed(2)} ms`} {step.error ?? ""}
-          </p>)}
-          {run.evidence.map(item => <div key={item.id} className="space-y-1">
-            <p className="text-xs break-all">证据：{item.id} · 数据：{item.dataset_version} · 金额单位：人民币分</p>
-            <SqlMessage payload={item} />
-          </div>)}
+          <TracePanel run={run} />
           <pre className="text-xs overflow-auto max-h-48">{JSON.stringify(result, null, 2)}</pre>
         </div>
       </details>
