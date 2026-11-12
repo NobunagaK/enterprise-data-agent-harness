@@ -58,6 +58,21 @@ This repair does not close #19 (production timeout/resource policy), #20 (trace
 status evidence), #21 (source-override regressions), or #11/#12 acceptance work.
 No human review, meeting or real-model experiment is implied by these tests.
 
+## Integration follow-up: the remaining batch timeout regression
+
+After integrating #22 and F2, [PR #17 Windows job 131171864035](https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/43215000092/job/131171864035)
+reported **196 passed, 1 failed**. A separate test in `test_harness_batch.py`
+still applied a 0.5-second deadline to healthy cases while simulating its middle
+timeout by raising `TimeoutError`. Its final healthy case timed out on the runner.
+
+A temporary pytest wrapper delaying only that healthy case by 600 ms reproduced
+the failure locally. The regression now genuinely blocks the middle case, gives
+each case a five-second test budget, and asserts receipt of `CancelledError`
+before checking that the final healthy case completes. The same delayed-case
+reproducer passes after the change. The temporary wrapper is not shipped.
+Application timeout settings and numerical validation are unchanged. Fresh CI
+results for the updated integration heads are recorded on their PRs.
+
 ---
 
 # 中文：Sprint 2 CI 稳定性修复
@@ -83,3 +98,10 @@ Windows/E2E 作业分别设置 10/15 分钟上限，不忽略错误、不增加�
 云环境拉取镜像返回 Forbidden，未声称本地容器验证通过。
 先用草稿 PR 验证真实 GitHub Windows/容器 CI，远程结果记录在 PR，通过后再转正式评审。
 不使用旧提交的测试冒充新验证；不自动关闭其他技术债或验收 Issues，不代填人工评审。
+
+后续集成时，PR #17 的 Windows 作业 `131171864035` 出现 196 通过、1 失败：
+另一项旧批次测试仍给正常案例设置 0.5 秒期限，却直接抛异常模拟中间超时，导致末尾正常案例被取消。
+给末尾正常案例临时增加 600 毫秒延迟后，本地复现了同一失败。
+现改为真正阻塞中间案例，使用 5 秒测试预算，断言收到取消，再验证末尾正常案例完成；
+相同延迟复现条件下测试通过。临时延迟工具不随代码提交，应用超时及数值规则不变。
+更新后的远程 CI 结果记录于对应 PR。
