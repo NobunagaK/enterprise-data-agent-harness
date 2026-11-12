@@ -61,6 +61,26 @@ Local Python 3.12 on Linux:
 The F3 frontend is handled separately in #18. Full native Windows application
 acceptance and live-provider validation remain distinct from automated CI.
 
+## Timeout attribution review follow-up
+
+Haoyu's review of `12856cc` reproduced an immediate provider `TimeoutError`
+being reported as expiry of the whole 60-second model budget. The same issue
+also affected configuration timeouts and missing model terminal callbacks.
+
+The runner now owns an `asyncio.timeout` context and checks its `expired()`
+state. Only expiry of that context produces `run_timeout`. An internal provider
+timeout retains `model_error`; a configuration timeout retains
+`model_configuration_error`. External cancellation still propagates, and the
+production budget remains 60 seconds. This does not add hard worker termination.
+
+Six new regressions cover both rules and three internal failure paths. All six
+failed before the repair and pass afterward. The older deadline regression now
+waits for actual deadline expiry instead of raising a synthetic `TimeoutError`.
+Existing real-expiry and external-cancellation tests remain in place.
+
+Local recheck: 551 backend/MCP tests passed, including 197 Harness tests;
+Ruff lint/format and mypy passed. Remote checks apply to the updated PR head.
+
 ---
 
 # 中文版本：Sprint 2 功能③后端轨迹接入
@@ -85,3 +105,17 @@ acceptance and live-provider validation remain distinct from automated CI.
 本地 Harness 191 项通过，其中轨迹测试 33 项（原有 2 项＋新增 31 项）；Ruff、格式与 mypy 通过。
 覆盖两条规则、成功/失败、取消/超时、配置异常、Token 缺失/非法值、真实编排替身与持久化关联。
 完整后端、浏览器及 Windows CI 的最终结果记录在 PR；替身测试不代表真实供应商或人工独立验收。
+
+## 超时归因评审修复
+
+Haoyu 对 `12856cc` 的评审复现了模型立即抛出 TimeoutError，却显示整次运行超过
+60 秒的问题；配置超时和缺失模型结束回调也存在同类误判。
+
+执行器现持有 asyncio.timeout 上下文并检查 expired()，只有本层截止时间实际到期才
+返回 run_timeout。供应商内部超时保留 model_error，配置超时保留 model_configuration_error。
+外部取消仍传播，生产模型预算仍为 60 秒，不增加强制终止工作线程的承诺。
+
+新增两种规则、三条内部错误路径共 6 项回归，修复前全部失败，修复后全部通过。
+原截止时间测试改为等待实际到期，保留现有真实超时及外部取消测试。
+本地本轮后端/MCP 551 项通过，其中 Harness 197 项；Ruff、格式及 mypy 通过。
+远程检查以更新后的 PR 提交为准。

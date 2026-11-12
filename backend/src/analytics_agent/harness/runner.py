@@ -136,9 +136,11 @@ async def collect_agent_claim(run: Run) -> None:
 
 
 async def execute(run: Run, claimed_value: str = "10") -> Run:
+    model_deadline: asyncio.Timeout | None = None
     try:
         if run.source == "agent_generated":
-            await asyncio.wait_for(collect_agent_claim(run), timeout=MODEL_TIMEOUT_SECONDS)
+            async with asyncio.timeout(MODEL_TIMEOUT_SECONDS) as model_deadline:
+                await collect_agent_claim(run)
         else:
             item = await query_worker(query_sales, run)
             recorded_claim(run, lambda: RULES[run.rule_id].claim(item.id, claimed_value))
@@ -164,14 +166,17 @@ async def execute(run: Run, claimed_value: str = "10") -> Run:
         run.result = rule_result(run.rule_id, "tool_error", "run_cancelled")
         run.finished_at = datetime.now(UTC)
         raise
-    except Exception as exc:
+    except Exception:
         # Exception text may include remote URLs or credentials. Store only safe codes.
-        reason = "run_timeout" if isinstance(exc, TimeoutError) else "execution_error"
+        # A provider may raise TimeoutError before our deadline. Only this
+        # boundary's expiry establishes that the overall model budget elapsed.
+        deadline_expired = model_deadline is not None and model_deadline.expired()
+        reason = "run_timeout" if deadline_expired else "execution_error"
         for active in run.steps:
             if active.status == "running":
                 active.status, active.error = "error", reason
                 active.finished_at = datetime.now(UTC)
-        if not isinstance(exc, TimeoutError) and run.steps and run.steps[-1].error:
+        if not deadline_expired and run.steps and run.steps[-1].error:
             reason = run.steps[-1].error
         run.result = rule_result(run.rule_id, "tool_error", reason)
         run.state = "error"

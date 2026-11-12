@@ -260,6 +260,40 @@ async def test_missing_terminal_callback_closes_model_step(monkeypatch, mode, ru
     assert run.finished_at and all(step.status != "running" for step in run.steps)
 
 
+@pytest.mark.parametrize("rule", ["growth_rate", "sales_total"])
+@pytest.mark.parametrize("failure", ["callback", "missing_callback", "configuration"])
+async def test_internal_timeout_is_not_the_outer_deadline(monkeypatch, rule, failure):
+    import langchain.agents
+    from analytics_agent.agent import llm
+
+    def get_model(**kwargs):
+        if failure == "configuration":
+            raise TimeoutError("private-configuration-timeout")
+        return SimpleNamespace(model_name="local-double")
+
+    class Agent:
+        async def ainvoke(self, messages, config):
+            trace = config["callbacks"][0]
+            call = uuid4()
+            trace.on_chat_model_start({}, [], run_id=call)
+            error = TimeoutError("private-provider-timeout")
+            if failure == "callback":
+                trace.on_llm_error(error, run_id=call)
+            raise error
+
+    monkeypatch.setattr(llm, "get_llm", get_model)
+    monkeypatch.setattr(langchain.agents, "create_agent", lambda **kwargs: Agent())
+    run = await runner.execute(Run(source="agent_generated", rule_id=rule))
+    expected = "model_configuration_error" if failure == "configuration" else "model_error"
+    assert run.state == "error" and run.result.status == "tool_error"
+    assert run.result.reason == expected
+    assert run.result.unit == RULES[rule].unit
+    assert run.steps[-1].error == expected
+    assert_terminal(run.steps[-1], "error")
+    assert run.finished_at and all(step.status != "running" for step in run.steps)
+    assert "private-" not in run.model_dump_json()
+
+
 @pytest.fixture
 async def sessions(tmp_path):
     engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'trace.db'}")
