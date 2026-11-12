@@ -1,7 +1,7 @@
 import type { ValidationStatus } from "./harness";
 
-export type BatchCaseState = "completed" | "timeout" | "error";
-export type BatchState = "running" | "completed" | "partial" | "error";
+export type BatchCaseState = "completed" | "timeout" | "error" | "cancelled" | "skipped" | "interrupted";
+export type BatchState = "running" | "completed" | "partial" | "error" | "timed_out" | "cancelled" | "interrupted";
 
 export interface BatchCaseOutcome {
   case_id: string;
@@ -24,10 +24,13 @@ export interface BatchCounts {
   tool_error: number;
   timeout: number;
   error: number;
+  cancelled?: number;
+  skipped?: number;
+  interrupted?: number;
 }
 
 export interface HarnessBatch {
-  schema_version: 1;
+  schema_version: 1 | 2;
   id: string;
   case_set_id: string;
   case_set_version: string;
@@ -37,12 +40,19 @@ export interface HarnessBatch {
   finished_at: string | null;
   outcomes: BatchCaseOutcome[];
   counts: BatchCounts;
+  case_ids?: string[];
+  deadline_at?: string | null;
+  case_timeout_s?: number | null;
+  batch_timeout_s?: number | null;
+  stop_reason?: string | null;
+  active_case_id?: string | null;
 }
 
 export interface HarnessBatchRequest {
   case_set_id?: string;
   conversation_id?: string | null;
   case_timeout_s?: number | null;
+  batch_timeout_s?: number;
 }
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
