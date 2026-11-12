@@ -4,7 +4,7 @@ This closes the prototype execution-boundary work tracked in #19. It extends the
 existing synchronous, sequential batch runner and retains one session per case.
 The supported workload is a bundled case set of 1–20 cases in one server process.
 
-## Story and limits
+## NFR-01: story and limits
 
 As an evaluator, I want a batch to stop starting new cases when its budget expires
 and to retain the results already obtained, so an interrupted evaluation cannot

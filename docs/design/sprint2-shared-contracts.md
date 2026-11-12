@@ -217,6 +217,9 @@ local model doubles prove orchestration only, not real-provider acceptance.
   and retain completed reports. The shared service separates per-run state and
   propagates storage/cancellation failures honestly. Batch continuation and hard
   timeout cleanup are not yet accepted by this PR.
+  F4 implementation follow-up: [batch budgets and interruption semantics](sprint2-batch-budgets.md)
+  defines the proposed 60-second case / 300-second batch defaults, 1–20-case
+  synchronous workload and cooperative cleanup guarantees for #19 review.
 - **NFR-02 Modifiability:** after this boundary is in place, adding total verification
   must not change batch orchestration or report-storage core logic. A small shared
   contract reduces coupling; limited abstractions avoid a premature plugin framework.
@@ -361,6 +364,8 @@ duration_ms、started_at、finished_at、parent_step_id、token_usage 可为空�
 
 NFR-01 可靠性：未来批次应隔离单例错误并保存已完成报告。本次入口隔离单次状态，如实传递取消和保存故障；
 批次继续执行及硬超时清理仍是后续验收项。
+功能④后续实现见[批次预算与中断语义](sprint2-batch-budgets.md)：提出单例 60 秒、整批 300 秒的默认预算，
+支持同步 1–20 条案例，并明确协作取消与清理边界，作为 #19 的评审依据；不代表已获得成员批准。
 
 NFR-02 可修改性：接口建立后，增加总额规则不应修改批次编排和存储核心。
 采用小型共享接口减少耦合，同时避免过早引入复杂插件框架；第二条规则的实际接入才是验收证据，不能提前宣称完成。

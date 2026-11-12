@@ -8,15 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from analytics_agent.db.base import get_session, get_session_factory
 from analytics_agent.db.models import Conversation
-from analytics_agent.harness import batch_store
+from analytics_agent.harness import batch_models, batch_store
 from analytics_agent.harness.batch import run_batch
-from analytics_agent.harness.batch_models import Batch, BatchBudget
+from analytics_agent.harness.batch_models import Batch
 from analytics_agent.harness.cases import CASE_SET_ID_PATTERN, CaseSetNotFound, load_case_set
 
 router = APIRouter(prefix="/api/harness/batches", tags=["harness"])
 
 
-class BatchRequest(BatchBudget):
+class BatchRequest(batch_models.BatchBudget):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     case_set_id: str = Field(default="sprint2-sales-v1", pattern=CASE_SET_ID_PATTERN, max_length=64)
