@@ -2,7 +2,7 @@
 
 Status: implementation proposal for peer review, not a completed Sprint 2 acceptance.
 Base: `main@8359a46827f48936a2e110e939061bff78f11e6f`.
-Owner: Zefeng Chen, with Codex assistance. Reviewers: Haoyu Shen and Zikai He;
+Owner: Zefeng Chen. Reviewers: Haoyu Shen and Zikai He;
 this names the requested review roles, not recorded approvals.
 
 ## 1. Scope and ownership
@@ -236,7 +236,7 @@ Existing Issues #11 and #12 remain separate. No auto-merge is authorized by this
 
 状态：已实现并提交评审的接口提案，不代表 Sprint 2 已验收。
 基线：`main@8359a46827f48936a2e110e939061bff78f11e6f`。
-负责人：Zefeng Chen，Codex 辅助；评审角色：Haoyu Shen、Zikai He。
+负责人：Zefeng Chen；评审角色：Haoyu Shen、Zikai He。
 角色安排不代表两人已经批准或完成评审。
 
 ## 1. 范围与分工
