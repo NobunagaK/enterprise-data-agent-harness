@@ -1,0 +1,66 @@
+{
+  "case_set_id": "sprint2-sales-mixed-v1",
+  "version": "1",
+  "dataset_version": "sales-v1",
+  "cases": [
+    {
+      "case_id": "growth-exact",
+      "rule_id": "growth_rate",
+      "source": "test_injected",
+      "claimed_value": "10",
+      "expected_status": "passed"
+    },
+    {
+      "case_id": "growth-boundary-pass",
+      "rule_id": "growth_rate",
+      "source": "test_injected",
+      "claimed_value": "10.01",
+      "expected_status": "passed",
+      "note": "Inclusive 0.01 percentage-point boundary."
+    },
+    {
+      "case_id": "growth-boundary-fail",
+      "rule_id": "growth_rate",
+      "source": "test_injected",
+      "claimed_value": "10.02",
+      "expected_status": "failed"
+    },
+    {
+      "case_id": "growth-malformed",
+      "rule_id": "growth_rate",
+      "source": "test_injected",
+      "claimed_value": "ten",
+      "expected_status": "unverifiable"
+    },
+    {
+      "case_id": "total-exact",
+      "rule_id": "sales_total",
+      "source": "test_injected",
+      "claimed_value": "11000",
+      "expected_status": "passed",
+      "note": "The 2025 fixed sales total is 11000 CNY cents."
+    },
+    {
+      "case_id": "total-one-cent-error",
+      "rule_id": "sales_total",
+      "source": "test_injected",
+      "claimed_value": "11001",
+      "expected_status": "failed"
+    },
+    {
+      "case_id": "total-fractional-cent",
+      "rule_id": "sales_total",
+      "source": "test_injected",
+      "claimed_value": "11000.1",
+      "expected_status": "unverifiable",
+      "note": "Fractional cents are not accepted as integral CNY cents."
+    },
+    {
+      "case_id": "total-malformed",
+      "rule_id": "sales_total",
+      "source": "test_injected",
+      "claimed_value": "eleven thousand",
+      "expected_status": "unverifiable"
+    }
+  ]
+}

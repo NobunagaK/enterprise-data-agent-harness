@@ -11,7 +11,13 @@ from analytics_agent.db.models import Conversation
 from analytics_agent.harness import batch_store
 from analytics_agent.harness.batch import run_batch
 from analytics_agent.harness.batch_models import Batch
-from analytics_agent.harness.cases import CASE_SET_ID_PATTERN, CaseSetNotFound, load_case_set
+from analytics_agent.harness.cases import (
+    CASE_SET_ID_PATTERN,
+    CaseSetNotFound,
+    CaseSetSummary,
+    list_case_sets,
+    load_case_set,
+)
 
 router = APIRouter(prefix="/api/harness/batches", tags=["harness"])
 
@@ -56,6 +62,11 @@ async def list_batches(
     conversation_id: str | None = None, session: AsyncSession = Depends(get_session)
 ):
     return await batch_store.list_batches(session, conversation_id)
+
+
+@router.get("/case-sets", response_model=list[CaseSetSummary])
+async def get_case_sets():
+    return list_case_sets()
 
 
 @router.get("/{batch_id}", response_model=Batch)
