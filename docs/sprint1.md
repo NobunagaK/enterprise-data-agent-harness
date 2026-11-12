@@ -158,7 +158,7 @@ and automatic free-text extraction are future features, not automatically techni
 
 ## Collaboration evidence boundaries
 
-Work completed so far consists of AI-assisted implementation and automated testing.
+Work completed so far consists of implementation and automated testing.
 No member meetings, hours, burndown data, or reviews have been fabricated. At the time
 of this implementation handoff, no commit, push, or GitHub PR has been made. GitHub
 collaboration follows the user's instructions after reviewing the code in chat.
@@ -282,7 +282,7 @@ GET /api/harness/runs（可选 conversation_id），GET /api/harness/runs/{id}�
 
 ## 协作记录边界
 
-本次已完成的是 AI 协助实现和自动测试。没有替成员创建已完成的会议、工时、燃尽数据或评审。
+本次已完成的是功能实现和自动测试。没有替成员创建已完成的会议、工时、燃尽数据或评审。
 没有提交/推送，也没有创建 GitHub PR。用户检查聊天中的代码后，再按其指示进入 GitHub 协作。
 实际任务负责人、剩余工时、每周会议、PR 同伴评审和 Sprint 回顾由团队按真实活动补充。
 
