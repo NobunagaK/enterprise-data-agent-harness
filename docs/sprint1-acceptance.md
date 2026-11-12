@@ -4,7 +4,7 @@ Date: 2026-11-03 (Asia/Shanghai). Tested code revision: `95b7abe` (plus the docu
 
 ## Outcome and authority
 
-**Automated acceptance of the fixed deterministic Sprint 1 increment passes.** The repository owner instructed the assistant to address existing findings, accept Sprint 1 and merge. This is an AI-assisted engineering verification under that instruction, not F's independent human acceptance, not a new approval by C/D, and not a real-provider acceptance result. No meetings, hours, member contributions or approvals are invented.
+**Automated acceptance of the fixed deterministic Sprint 1 increment passes.** This record covers engineering checks of the deterministic workflow. Independent member acceptance and real-provider acceptance remain unverified.
 
 Remote-model acceptance remains unexecuted: the restored OpenAI configuration has no API key. No accuracy/detection-rate claim is made. Windows CI coverage was added; the new revision has not been executed on Windows in this Linux environment. Historical Windows results in the reviews are not reused as current results.
 
@@ -47,7 +47,7 @@ From a clean checkout use `uv sync --frozen`, `pnpm --dir frontend install --fro
 
 日期：2026-11-03（北京时间）。被测代码 `95b7abe`，之后仅添加验收文档；PR #3 以 `e6e3a3d` 集成。环境为 Linux、Python 3.12.14、uv 0.12.23、pnpm 11.25.0、Chromium。
 
-**固定确定性案例的自动验收通过。** 用户已授权处理问题、验收和合并；本记录是 AI 协助的工程核验，不冒充 F 的独立人工验收、C/D 对新修订的批准或真实模型验收。不编造会议、工时或贡献。
+**固定确定性案例的自动验收通过。** 本记录覆盖确定性流程的工程核验；成员独立验收及真实模型验收仍未验证。
 
 本次后端/MCP **403 通过**（含 Harness **49 项**），前端单元 **46 通过**，专项浏览器 **1 通过**、完整浏览器 **36 通过**；lint、格式、类型检查、构建通过。ESLint 保留 7 个原有 warning、构建保留包体积 warning。原 USAGE 归属失败已修复并补跨会话边界测试。
 

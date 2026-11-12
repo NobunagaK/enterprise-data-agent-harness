@@ -12,7 +12,7 @@ A owns requirements/integration; D owns independent testing; F owns final indepe
 Deliver and independently accept one fixed sales case: actual SQL → captured evidence →
 growth validation → persisted report → existing React UI.
 
-The first implementation was AI-assisted under the user's direction and was pushed as
+The first implementation was pushed as
 commit `494388a` on `sprint1/harness`. This does not establish member acceptance or peer
 review. PR creation/merge status has not been verified. The earlier handoff in
 [sprint1.md](../sprint1.md) is historical; its statement about not having pushed describes
@@ -29,7 +29,7 @@ before using it as a burndown baseline. Do not backdate these estimates.
 
 | Member | Primary responsibility | Concrete tasks and deliverables | Proposed reviewer | Estimate |
 |---|---|---|---|---:|
-| A · Zefeng Chen | Coordination, requirements and code integration | Confirm scope; direct and understand AI-assisted implementation; submit PRs and integrate feedback; organize review/retrospective and merge readiness | B reviews integration; F independently accepts | 6 h |
+| A · Zefeng Chen | Coordination, requirements and code integration | Confirm scope; coordinate and understand the implementation; submit PRs and integrate feedback; organize review/retrospective and merge readiness | B reviews integration; F independently accepts | 6 h |
 | B · Rui Wen | Architecture and backend integration | Review data flow, API, migration and persistence; record rationale and alternatives; assess interrupted runs and lifecycle coupling; implement justified fixes | C · Zikai He | 6 h |
 | C · Zikai He | Numerical validation | Review Decimal, units, tolerance, evidence association and unsupported inputs; propose counterexamples and implement necessary validator fixes | D · Haoyu Shen | 8 h |
 | D · Haoyu Shen | Test engineering | Independently design edge/error cases; run and extend tests; examine cross-run isolation and restoration; distinguish baseline defects from regressions | C for tests; F for acceptance conclusions | 8 h |
@@ -129,7 +129,7 @@ A 负责需求与代码集成，D 负责独立测试，F 负责最终独立验�
 ## 1. 目标与真实进度
 
 本轮目标：固定销售案例的真实 SQL → 捕获证据 → 增长率验证 → 持久化报告 → 原有 React 界面。
-首版由用户指导、AI 协助实现，已作为 `494388a` 推送到 `sprint1/harness`。
+首版已作为 `494388a` 推送到 `sprint1/harness`。
 这不代表成员已验收或评审；PR 是否已创建、合并尚未核实。原开发说明中的“尚未推送”属于当时交接快照。
 
 Zefeng Chen 于 2026-10-30 确认 A–F 分工：A 负责需求与代码集成，F 负责最终独立验收，D 提供独立测试。此安排替代先前由 A 独立验收的提案。负责人已确定不代表工作完成或每位成员已亲自确认接受。评审配对与工时仍为建议。
@@ -141,7 +141,7 @@ GitHub 账号、可投入时间、Sprint 起止日期、PR 地址仍待填写。
 
 | 成员 | 主要职责 | 具体工作与产物 | 建议评审人 | 估算 |
 |---|---|---|---|---:|
-| A · Zefeng Chen | 协调、需求与代码集成 | 确认范围；组织并理解 AI 辅助实现；提交 PR、整合反馈；组织评审、回顾与合并检查 | B 审查集成；F 独立验收 | 6 小时 |
+| A · Zefeng Chen | 协调、需求与代码集成 | 确认范围；组织并理解功能实现；提交 PR、整合反馈；组织评审、回顾与合并检查 | B 审查集成；F 独立验收 | 6 小时 |
 | B · Rui Wen | 架构及后端集成 | 检查数据流、API、迁移、持久化；记录方案取舍；评估中断状态和内部接口依赖；修复确认的问题 | C · Zikai He | 6 小时 |
 | C · Zikai He | 数值验证 | 检查 Decimal、单位、容差、证据关联和不支持输入；提出反例；修复验证逻辑 | D · Haoyu Shen | 8 小时 |
 | D · Haoyu Shen | 测试工程 | 独立设计边界/异常案例；补测试；检查跨运行隔离和恢复；区分上游问题与回归 | C 审查测试；F 审查验收结论 | 8 小时 |

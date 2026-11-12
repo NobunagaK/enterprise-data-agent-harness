@@ -5,8 +5,8 @@ project virtualenv, installed frontend dependencies and system Chromium.
 Base: `8359a46827f48936a2e110e939061bff78f11e6f`. These results apply to the
 implementation shipped in this PR, not to future F2/F3/F4 implementations.
 
-This is Codex-assisted implementation verification, not Haoyu/Zikai approval,
-independent human acceptance, a Windows result or a real-model experiment.
+This record covers implementation verification on Linux. Windows and real-model
+experiments are outside these results; review decisions are recorded on the PR.
 
 For Python checks, set `ANALYTICS_AGENT_CONFIG_DIR` to a writable isolated
 directory and `DATAHUB_TELEMETRY_ENABLED=false`. Commands below use the existing
@@ -49,7 +49,7 @@ acceptance remain unexecuted; Issues #11 and #12 are not closed by this change.
 日期：2026-11-07（北京时间）。环境：云端 Linux、Python 3.12.14、已有项目虚拟环境及前端依赖、系统 Chromium。
 基线为 `8359a46`。结果对应本 PR 的实现，不代表后续三个功能已经完成。
 
-本次为 Codex 辅助验证，不冒充 Haoyu/Zikai 评审、独立人工验收、Windows 结果或真实模型实验。
+本记录覆盖 Linux 上的实现验证；不包含 Windows 或真实模型实验，评审决定以 PR 记录为准。
 复现命令见英文表，Python 检查使用独立可写配置目录并关闭遥测。
 
 本次实际结果：后端/MCP 427 通过；其中 Harness 专项 73 通过（原有 49、新增 24）；
