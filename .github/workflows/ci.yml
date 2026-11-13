@@ -151,3 +151,19 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+  trace-benchmark-windows:
+    name: Trace benchmark — Windows smoke
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev
+      - name: Benchmark lint and format
+        run: |
+          uv run ruff check scripts/benchmark_harness_trace.py
+          uv run ruff format --check scripts/benchmark_harness_trace.py
+      - run: uv run pytest tests/unit/test_trace_benchmark.py -q
