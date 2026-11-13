@@ -94,6 +94,35 @@ class CaseSet(BaseModel):
         return self
 
 
+class CaseSetSummary(BaseModel):
+    """Selection metadata; evaluation labels and claims stay in the case file."""
+
+    case_set_id: str
+    version: str
+    dataset_version: str
+    case_count: int
+    rule_ids: list[str]
+    sources: list[RunSource]
+
+
+def list_case_sets() -> list[CaseSetSummary]:
+    """Describe the bundled, validated case sets without executing any case."""
+    summaries = []
+    for path in sorted(CASE_SET_DIR.glob("*.json")):
+        case_set = load_case_set(path.stem)
+        summaries.append(
+            CaseSetSummary(
+                case_set_id=case_set.case_set_id,
+                version=case_set.version,
+                dataset_version=case_set.dataset_version,
+                case_count=len(case_set.cases),
+                rule_ids=sorted({case.rule_id for case in case_set.cases}),
+                sources=sorted({case.source for case in case_set.cases}),
+            )
+        )
+    return summaries
+
+
 def load_case_set(case_set_id: str) -> CaseSet:
     """Load a bundled case set by ID. The ID is restricted to a safe slug."""
     if not CASE_SET_ID.fullmatch(case_set_id):

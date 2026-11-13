@@ -1,4 +1,4 @@
-import type { ValidationStatus } from "./harness";
+import type { HarnessSource, ValidationStatus } from "./harness";
 
 export type BatchCaseState = "completed" | "timeout" | "error";
 export type BatchState = "running" | "completed" | "partial" | "error";
@@ -45,6 +45,15 @@ export interface HarnessBatchRequest {
   case_timeout_s?: number | null;
 }
 
+export interface CaseSetSummary {
+  case_set_id: string;
+  version: string;
+  dataset_version: string;
+  case_count: number;
+  rule_ids: string[];
+  sources: HarnessSource[];
+}
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
   if (!response.ok) throw new Error(`请求失败（HTTP ${response.status}）`);
@@ -57,6 +66,10 @@ export function createHarnessBatch(body: HarnessBatchRequest = {}) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+export function listHarnessCaseSets() {
+  return request<CaseSetSummary[]>("/api/harness/batches/case-sets");
 }
 
 export function getHarnessBatch(batchId: string) {
