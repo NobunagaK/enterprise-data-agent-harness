@@ -20,12 +20,22 @@ const CASE_STATE_LABEL: Record<string, string> = {
   completed: "已完成",
   timeout: "超时",
   error: "执行错误",
+  cancelled: "已取消",
+  skipped: "未执行",
+  interrupted: "中断（结果未确认）",
+};
+
+const STOP_LABEL: Record<string, string> = {
+  timed_out: "整批超时：已停止启动后续案例。",
+  cancelled: "批次已取消：已保留完成结果。",
+  interrupted: "批次中断：未完成案例的执行结果无法确认。",
 };
 
 export function BatchSummary({ batch }: { batch: HarnessBatch }) {
   const { counts } = batch;
   return (
     <div className="space-y-2" data-testid="batch-summary">
+      {STOP_LABEL[batch.state] && <p role="status" className="text-xs text-amber-600">{STOP_LABEL[batch.state]}</p>}
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
         <span>完成 {counts.completed}/{counts.attempted}</span>
         <span>通过 {counts.passed}</span>
@@ -37,7 +47,17 @@ export function BatchSummary({ batch }: { batch: HarnessBatch }) {
             超时 {counts.timeout} · 执行错误 {counts.error}
           </span>
         )}
+        {((counts.skipped ?? 0) > 0 || (counts.cancelled ?? 0) > 0 || (counts.interrupted ?? 0) > 0) && (
+          <span className="text-amber-600">
+            已尝试 {counts.attempted} · 未执行 {counts.skipped ?? 0} · 已取消 {counts.cancelled ?? 0} · 结果未确认 {counts.interrupted ?? 0}
+          </span>
+        )}
       </div>
+      {batch.batch_timeout_s != null && (
+        <p className="text-xs text-muted-foreground">
+          整批预算 {batch.batch_timeout_s} 秒 · {batch.case_timeout_s == null ? "单例共用整批预算" : `单例预算 ${batch.case_timeout_s} 秒`}；结束前会等待正在清理的资源释放。
+        </p>
+      )}
       <ul className="space-y-1 text-xs">
         {batch.outcomes.map(outcome => (
           <li key={outcome.case_id} className="flex flex-wrap items-center gap-2">
@@ -189,6 +209,9 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
               </ul>
               {detail && (
                 <div className="mt-2">
+                  {selected.outcomes.some(outcome => outcome.run_id === detail.id && outcome.state !== "completed") && (
+                    <p className="text-xs text-amber-600">本例未正常完成；下方为最后保存的运行快照，可能未包含中止前的全部步骤。</p>
+                  )}
                   <ValidationResultCard run={detail} />
                 </div>
               )}

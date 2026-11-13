@@ -59,6 +59,30 @@ const batch: HarnessBatch = {
 };
 
 describe("batch summary rendering", () => {
+  it("keeps skipped cases out of attempted and distinguishes budget expiry", () => {
+    const stopped: HarnessBatch = {
+      ...batch, schema_version: 2, state: "timed_out", batch_timeout_s: 300,
+      case_timeout_s: 60, counts: { ...counts, skipped: 1 },
+      outcomes: [...batch.outcomes, {
+        case_id: "never-started", state: "skipped", run_id: null, result_status: null,
+        reason: "batch_timeout", error_type: null, expected_status: "passed",
+        matches_expected: null, duration_ms: 0,
+      }],
+    };
+    const html = renderToStaticMarkup(<BatchSummary batch={stopped} />);
+    expect(html).toContain("整批超时");
+    expect(html).toContain("已尝试 3 · 未执行 1");
+    expect(html).toContain("整批预算 300 秒");
+    expect(html).not.toContain("期望 通过");
+  });
+
+  it("shows cancellation and unconfirmed interruption without claiming completion", () => {
+    for (const state of ["cancelled", "interrupted"] as const) {
+      const html = renderToStaticMarkup(<BatchSummary batch={{ ...batch, state }} />);
+      expect(html).toContain(state === "cancelled" ? "批次已取消" : "执行结果无法确认");
+    }
+  });
+
   it("shows the four outcome categories and the attempted total", () => {
     const html = renderToStaticMarkup(<BatchSummary batch={batch} />);
     expect(html).toContain("完成 2/3");

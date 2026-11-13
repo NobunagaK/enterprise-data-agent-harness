@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from analytics_agent.db.base import get_session, get_session_factory
 from analytics_agent.db.models import Conversation
-from analytics_agent.harness import batch_store
+from analytics_agent.harness import batch_models, batch_store
 from analytics_agent.harness.batch import run_batch
 from analytics_agent.harness.batch_models import Batch
 from analytics_agent.harness.cases import CASE_SET_ID_PATTERN, CaseSetNotFound, load_case_set
@@ -16,12 +16,11 @@ from analytics_agent.harness.cases import CASE_SET_ID_PATTERN, CaseSetNotFound, 
 router = APIRouter(prefix="/api/harness/batches", tags=["harness"])
 
 
-class BatchRequest(BaseModel):
+class BatchRequest(batch_models.BatchBudget):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     case_set_id: str = Field(default="sprint2-sales-v1", pattern=CASE_SET_ID_PATTERN, max_length=64)
     conversation_id: str | None = None
-    case_timeout_s: float | None = Field(default=None, gt=0, le=120)
 
 
 def get_batch_session_factory():
@@ -48,6 +47,7 @@ async def create_batch(
         factory,
         conversation_id=body.conversation_id,
         case_timeout_s=body.case_timeout_s,
+        batch_timeout_s=body.batch_timeout_s,
     )
 
 
