@@ -4,7 +4,9 @@ import {
   createHarnessBatch,
   getHarnessBatch,
   listHarnessBatches,
+  listHarnessCaseSets,
   type BatchCaseOutcome,
+  type CaseSetSummary,
   type HarnessBatch,
 } from "@/api/harnessBatches";
 import { ValidationResultCard } from "./ValidationResultCard";
@@ -20,6 +22,11 @@ const CASE_STATE_LABEL: Record<string, string> = {
   completed: "已完成",
   timeout: "超时",
   error: "执行错误",
+};
+
+const RULE_LABEL: Record<string, string> = {
+  growth_rate: "增长率",
+  sales_total: "销售总额",
 };
 
 export function BatchSummary({ batch }: { batch: HarnessBatch }) {
@@ -60,6 +67,10 @@ export function BatchSummary({ batch }: { batch: HarnessBatch }) {
 }
 
 export function HarnessBatchPanel({ conversationId }: { conversationId: string | null }) {
+  const [caseSets, setCaseSets] = useState<CaseSetSummary[]>([]);
+  const [caseSetId, setCaseSetId] = useState("sprint2-sales-v1");
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState("");
   const [batches, setBatches] = useState<HarnessBatch[]>([]);
   const [selected, setSelected] = useState<HarnessBatch | null>(null);
   const [detail, setDetail] = useState<HarnessRun | null>(null);
@@ -68,6 +79,26 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
   const [error, setError] = useState("");
   const mounted = useRef(true);
   const pending = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    listHarnessCaseSets()
+      .then(data => {
+        if (active) {
+          setCaseSets(data);
+          setCaseSetId(current => data.some(item => item.case_set_id === current)
+            ? current : (data[0]?.case_set_id ?? ""));
+          if (!data.length) setCatalogError("暂无可运行的案例集。");
+        }
+      })
+      .catch(() => {
+        if (active) setCatalogError("案例集读取失败，请刷新页面重试。");
+      })
+      .finally(() => {
+        if (active) setCatalogLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     mounted.current = true;
@@ -92,13 +123,16 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
   }, [conversationId]);
 
   async function execute() {
-    if (pending.current) return;
+    if (pending.current || !caseSets.some(item => item.case_set_id === caseSetId)) return;
     pending.current = true;
     setBusy(true);
     setError("");
     setDetail(null);
     try {
-      const batch = await createHarnessBatch({ conversation_id: conversationId });
+      const batch = await createHarnessBatch({
+        case_set_id: caseSetId,
+        conversation_id: conversationId,
+      });
       if (mounted.current) {
         setBatches(previous => [batch, ...previous.filter(item => item.id !== batch.id)].slice(0, 20));
         setSelected(batch);
@@ -135,17 +169,35 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
     }
   }
 
+  const selectedCaseSet = caseSets.find(item => item.case_set_id === caseSetId);
+
   return (
     <details className="border-t border-border px-4 py-2 shrink-0" data-print-hide>
       <summary className="cursor-pointer text-sm font-medium">批量评测 · Sprint 2</summary>
       <div className="space-y-3 mt-2 max-h-[45vh] overflow-y-auto">
         <p className="text-xs text-muted-foreground">
-          运行服务端版本化的固定案例集（10 条：通过 / 失败 / 无法验证）。单条异常不会中断后续案例。
+          运行固定案例集，汇总通过、失败、无法验证及工具错误。单条异常不会中断后续案例。
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm">
+          <label>
+            案例集
+            <select
+              aria-label="案例集"
+              className="ml-2 rounded border bg-background px-2 py-1"
+              value={caseSetId}
+              disabled={busy || catalogLoading || !caseSets.length}
+              onChange={event => setCaseSetId(event.target.value)}
+            >
+              {caseSets.map(item => (
+                <option key={item.case_set_id} value={item.case_set_id}>
+                  {item.rule_ids.map(rule => RULE_LABEL[rule] ?? rule).join(" + ")} · {item.case_count} 条
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             className="bg-primary text-primary-foreground rounded px-3 py-1 disabled:opacity-50"
-            disabled={busy || loading}
+            disabled={busy || loading || catalogLoading || !selectedCaseSet}
             onClick={execute}
           >
             {busy ? "批量运行中…" : "运行批次"}
@@ -161,10 +213,18 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
           )}
           {selected && (
             <span className="text-xs text-muted-foreground">
-              批次 {selected.id.slice(0, 8)} · {selected.state}
+              批次 {selected.id.slice(0, 8)} · {selected.state} · {selected.case_set_id} v{selected.case_set_version}
             </span>
           )}
         </div>
+        {selectedCaseSet && (
+          <p className="text-xs text-muted-foreground">
+            {selectedCaseSet.sources.map(source => source === "test_injected"
+              ? "固定测试声明（非真实模型输出）" : "真实模型声明").join(" / ")}
+            {" · "}{selectedCaseSet.case_count} 条 · 数据集 {selectedCaseSet.dataset_version}
+          </p>
+        )}
+        {catalogError && <p role="alert" className="text-red-500 text-sm">{catalogError}</p>}
         {error && (
           <p role="alert" className="text-red-500 text-sm">
             {error}
@@ -212,7 +272,7 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
                     setDetail(null);
                   }}
                 >
-                  {batch.started_at} · {batch.state} · {batch.counts.passed}/{batch.counts.attempted}
+                  {batch.started_at} · {batch.case_set_id} v{batch.case_set_version} · {batch.state} · {batch.counts.passed}/{batch.counts.attempted}
                 </button>
               ))}
             </div>
