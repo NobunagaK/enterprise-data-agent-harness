@@ -1,6 +1,6 @@
 # Sprint 2 F4: batch budgets and interruption semantics
 
-This closes the prototype execution-boundary work tracked in #19. It extends the
+This implements the prototype execution-boundary work tracked in #19. It extends the
 existing synchronous, sequential batch runner and retains one session per case.
 The supported workload is a bundled case set of 1–20 cases in one server process.
 
@@ -23,6 +23,11 @@ budgets. Existing request fields and `case_timeout_s=null` remain accepted.
 Cancellation is cooperative. The parent owns separate tasks for case execution
 and normal metadata writes, cancels each once, then shields and drains it even
 if the parent is cancelled repeatedly.
+For both case execution and batch metadata, the runner owns the actual
+`AsyncSession.close()` task and waits for it even when cancellation arrives
+during session exit. SQLAlchemy's default `__aexit__` shields its close task
+but does not wait for that task after cancellation; relying on the outer task
+alone can leave a connection checked out when terminal persistence begins.
 The existing query worker similarly drains its thread before returning. Cleanup
 and final database writes can outlast the budget; a permanently stuck thread
 cannot be forcibly killed. This synchronous prototype does not introduce a
@@ -74,6 +79,14 @@ cover the new summaries, and a browser fixture verifies interruption display and
 disabled detail links for unexecuted/unconfirmed cases. Browser fixtures validate
 presentation; actual cancellation/SQL/persistence are exercised by backend tests.
 
+The PR #27 cleanup regression uses a real one-connection SQLite pool with no
+overflow and a delayed close after a transaction is opened. Four scenarios cover
+whole-batch expiry and repeated external cancellation during failed-case or
+metadata cleanup. They assert that no terminal save starts before close finishes,
+the connection is returned, confirmed prefix reports remain readable, and the
+tail never starts. The delay is controlled fault injection, not normal latency.
+Deployment and default-budget changes are also documented in the README.
+
 Actual commands and results are recorded on this PR. Review the defaults and soft
 deadline guarantees as part of #19 acceptance. Live-provider and complete native
 Windows application acceptance remain separate work.
@@ -92,6 +105,8 @@ Windows application acceptance remain separate work.
 
 到期会请求协作取消，随后等待所拥有的任务、线程及 session 完成清理，再保存批次终态。
 连续取消不会让执行边界提前退出或中断终态写入；清理和数据库操作可能超过预算。
+案例与批次报告 session 均直接拥有并等待实际 close 任务完成；不能仅依赖 SQLAlchemy 的
+__aexit__ 屏蔽取消，因为外层退出时关闭任务可能仍在持有连接。
 永久卡死线程无法被强制终止；关闭网页不保证取消服务端任务。本轮保持同步小批量原型范围。
 
 单例到期标记 timeout，后续案例在整批预算内继续；内部自行抛出的 TimeoutError 不冒充期限到期。
@@ -108,3 +123,7 @@ cancelled，并继续向调用方传播取消。已经确认的结果保留；�
 测试覆盖真实整批超时、前序报告保留、尾部不启动、工作线程/终态保存期间的重复取消、存储失败、内部超时归因、
 非法预算、并发批次隔离、时区及旧快照兼容；前端和浏览器另行检查状态展示。浏览器使用状态夹具，
 真实取消、SQL 和持久化由后端测试验证。实际命令及结果记录于 PR，默认预算和协作取消边界交由成员评审。
+
+#27 新增四种回归组合：单连接池、无溢出，真实事务后的 session 关闭被人为延迟；分别测试
+失败案例／批次报告清理时的整批到期和重复外部取消。断言关闭完成前不开始终态保存、连接归还、
+前序报告可读、尾部未执行。延迟用于故障注入，不代表正常耗时。README 同时明确单进程部署限制及默认预算变化。

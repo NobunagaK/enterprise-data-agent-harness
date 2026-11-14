@@ -15,7 +15,8 @@ from analytics_agent.harness.cases import CaseDefinition, CaseSet
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 
 def cases():
@@ -409,3 +410,110 @@ async def test_repeated_cancellation_also_drains_initial_metadata_session(sessio
             and report.counts.attempted == 0
         )
         assert await store.list_runs(session, None) == []
+
+
+@pytest.mark.parametrize("cleanup_at", ["failed_case", "metadata"])
+@pytest.mark.parametrize("stop", ["batch_timeout", "repeated_cancel"])
+async def test_terminal_report_waits_for_real_session_close(
+    sessions, monkeypatch, cleanup_at, stop
+):
+    """A shielded SQLAlchemy close must release the sole connection first."""
+    closing, release, closed = asyncio.Event(), asyncio.Event(), asyncio.Event()
+    close_tasks = set()
+    terminal_cleanup_states = []
+    seen = []
+    engine = sessions.kw["bind"]
+    real_run, real_save = batch_module.run_case, batch_store.save
+
+    class DelayedCloseSession(AsyncSession):
+        async def close(self):
+            if self.info.pop("delay_close", False):
+                close_tasks.add(asyncio.current_task())
+                closing.set()
+                await release.wait()
+                await super().close()
+                closed.set()
+            else:
+                await super().close()
+
+    factory = async_sessionmaker(engine, class_=DelayedCloseSession, expire_on_commit=False)
+
+    async def fail_middle_case(request, session, **kwargs):
+        seen.append(request.case_id)
+        if cleanup_at == "failed_case" and request.case_id == "b":
+            await session.execute(text("SELECT 1"))  # A real transaction holds the only slot.
+            session.info["delay_close"] = True
+            raise RuntimeError("injected case failure")
+        return await real_run(request, session, **kwargs)
+
+    async def observe_save(session, batch):
+        if batch.state in {"timed_out", "cancelled"}:
+            terminal_cleanup_states.append(closed.is_set())
+        await real_save(session, batch)
+        if (
+            cleanup_at == "metadata"
+            and batch.state == "running"
+            and len(batch.outcomes) == 1
+            and batch.active_case_id is None
+        ):
+            # Keep a real read transaction open after the confirmed prefix was saved.
+            await session.execute(text("SELECT 1"))
+            session.info["delay_close"] = True
+
+    monkeypatch.setattr(batch_module, "run_case", fail_middle_case)
+    monkeypatch.setattr(batch_store, "save", observe_save)
+    budget = 5 if stop == "batch_timeout" else 300
+    task = asyncio.create_task(
+        batch_module.run_batch(cases(), factory, case_timeout_s=None, batch_timeout_s=budget)
+    )
+    try:
+        await asyncio.wait_for(closing.wait(), 5)
+        assert engine.sync_engine.pool.checkedout() == 1
+        if stop == "batch_timeout":
+            # Let the real enclosing budget expire; retain a generous startup
+            # allowance for the healthy prefix on shared Windows runners.
+            await asyncio.sleep(budget + 0.3)
+        else:
+            task.cancel()
+            await asyncio.sleep(0)
+            task.cancel()
+            await asyncio.sleep(0.3)  # Longer than the real 0.2 s pool timeout.
+        if task.done() and not task.cancelled():
+            task.result()  # Surface an actual pool timeout in the unfixed version.
+        assert not task.done(), "Batch returned before its session finished closing"
+        assert not closed.is_set() and terminal_cleanup_states == []
+        assert engine.sync_engine.pool.checkedout() == 1
+
+        release.set()
+        if stop == "batch_timeout":
+            report = await asyncio.wait_for(task, 5)
+            assert report.state == "timed_out"
+        else:
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(task, 5)
+    finally:
+        release.set()
+        if not task.done():
+            task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
+        # Also reap the detached close task on the old implementation's red run.
+        await asyncio.gather(*close_tasks, return_exceptions=True)
+
+    assert closed.is_set() and terminal_cleanup_states == [True]
+    assert engine.sync_engine.pool.checkedout() == 0
+    async with factory() as session:
+        saved = (await batch_store.list_batches(session, None))[0]
+        expected_stop = "timeout" if stop == "batch_timeout" else "cancelled"
+        assert saved.state == ("timed_out" if stop == "batch_timeout" else "cancelled")
+        expected_states = (
+            ["completed", expected_stop, "skipped"]
+            if cleanup_at == "failed_case"
+            else ["completed", "skipped", "skipped"]
+        )
+        assert [outcome.state for outcome in saved.outcomes] == expected_states
+        assert saved.counts.attempted + saved.counts.skipped == 3
+        first = await store.get(session, saved.outcomes[0].run_id)
+        assert first.result.status == "passed"
+        assert len(await store.list_runs(session, None)) == 1
+    assert seen == (["a", "b"] if cleanup_at == "failed_case" else ["a"])
+    assert engine.sync_engine.pool.checkedout() == 0

@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Coroutine
+from collections.abc import AsyncIterator, Coroutine
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from time import perf_counter
@@ -85,7 +86,7 @@ async def _run_one(
 
     deadline = asyncio.timeout(case_timeout_s)
     try:
-        async with session_factory() as session:
+        async with _session(session_factory) as session:
             request = case.to_request(conversation_id)
             async with deadline:
                 run = await run_case(request, session, on_persisted=remember_run)
@@ -133,7 +134,7 @@ async def _run_one(
 
 
 async def _persist(batch: Batch, session_factory: async_sessionmaker[AsyncSession]) -> None:
-    async with session_factory() as session:
+    async with _session(session_factory) as session:
         await batch_store.save(session, batch)
 
 
@@ -150,6 +151,30 @@ async def _drain(task: asyncio.Task) -> bool:
     return interrupted
 
 
+async def _finish(operation: Coroutine[Any, Any, T]) -> T:
+    """Finish owned cleanup/persistence before propagating repeated cancellation."""
+    task = asyncio.create_task(operation)
+    interrupted = await _drain(task)
+    result = task.result()  # Failed cleanup or storage must not look successful.
+    if interrupted:
+        raise asyncio.CancelledError
+    return result
+
+
+@asynccontextmanager
+async def _session(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> AsyncIterator[AsyncSession]:
+    # AsyncSession.__aexit__ shields a separate close task but can return early
+    # when cancelled. Own close() directly so the connection is released before
+    # _owned() finishes and the terminal report requests another pool slot.
+    session = session_factory()
+    try:
+        yield session
+    finally:
+        await _finish(session.close())
+
+
 async def _owned(operation: Coroutine[Any, Any, T]) -> T:
     task = asyncio.create_task(operation)
     try:
@@ -163,11 +188,7 @@ async def _owned(operation: Coroutine[Any, Any, T]) -> T:
 
 
 async def _save_terminal(batch: Batch, session_factory: async_sessionmaker[AsyncSession]) -> None:
-    task = asyncio.create_task(_persist(batch, session_factory))
-    interrupted = await _drain(task)
-    task.result()  # A failed write must not look like a successfully saved report.
-    if interrupted:
-        raise asyncio.CancelledError
+    await _finish(_persist(batch, session_factory))
 
 
 def _stop(

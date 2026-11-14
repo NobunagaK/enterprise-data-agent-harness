@@ -122,6 +122,32 @@ This applies Alembic migrations, seeds engines and context platforms from `confi
 
 For Kubernetes deployments, the Helm chart runs `analytics-agent bootstrap` automatically as a `pre-install`/`pre-upgrade` hook (see `helm/analytics-agent/README.md`).
 
+### Sprint 2 Harness: deployment and batch budgets
+
+Run the Harness from this repository checkout with **one server worker and one
+application replica per Harness database**. The active-batch registry is local
+to that process; multiple workers/replicas sharing the database can incorrectly
+display another worker's expired but still active batch as `interrupted`.
+For an evaluation run, use an explicit single worker and avoid automatic reloads:
+
+```bash
+uv run analytics-agent bootstrap
+uv run uvicorn analytics_agent.main:app --host 0.0.0.0 --port 8100 --workers 1
+```
+
+The supported prototype workload is a synchronous batch of 1–20 bundled cases.
+When omitted, `case_timeout_s` now defaults to **60 seconds** (previously null)
+and `batch_timeout_s` defaults to **300 seconds**. Accepted positive values are
+at most 120 and 600 seconds, respectively. Explicit `case_timeout_s: null`
+disables that case budget while retaining the enclosing batch and model limits;
+the batch budget cannot be null.
+
+Expiry requests cooperative cancellation. Query workers and actual session-close
+tasks finish before the terminal report is saved. Cleanup and final writes can
+outlast the budget; this is not a hard response-time guarantee or a mechanism
+for killing stuck threads. Confirmed results remain available, and unstarted
+cases are marked `skipped`. Details: [batch budgets](docs/design/sprint2-batch-budgets.md).
+
 ### Optional: pre-configure via `.env`
 
 ```bash
@@ -447,3 +473,13 @@ User message → POST /api/conversations/{id}/messages
   <br>
   <sub>Built with <a href="https://datahub.com">DataHub</a> · <a href="https://langchain.com/langgraph">LangGraph</a> · <a href="https://fastapi.tiangolo.com">FastAPI</a> · <a href="https://react.dev">React</a></sub>
 </p>
+
+## Sprint 2 Harness 运行说明（中文）
+
+使用本仓库的 Harness 时，每个数据库只支持一个服务进程和一个应用副本；
+启动命令显式指定 `--workers 1`，评测时避免自动重载。活动批次登记只在本进程内有效，
+多 worker／多副本共享数据库可能把另一进程仍在清理的批次误显示为 interrupted。
+支持同步运行 1–20 条内置案例。默认单例预算由原来的 null 改为 **60 秒**，整批默认 **300 秒**；
+两者允许的正数上限分别为 120／600 秒。单例可显式设为 null，但仍受整批及模型期限约束，整批不可为 null。
+到期后请求协作取消，等待线程和 session 真正关闭后再保存终态；清理、保存可能超过预算，
+不承诺强制终止卡死线程。已确认结果保留，未开始案例记为 skipped。
