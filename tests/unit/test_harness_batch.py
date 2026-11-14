@@ -8,13 +8,14 @@ from analytics_agent.api.harness_batches import router as batches_router
 from analytics_agent.db.base import get_session
 from analytics_agent.db.models import Base
 from analytics_agent.harness import batch as batch_module
-from analytics_agent.harness import batch_store
+from analytics_agent.harness import batch_store, store
 from analytics_agent.harness.cases import (
     CaseDefinition,
     CaseSet,
     CaseSetNotFound,
     load_case_set,
 )
+from analytics_agent.harness.models import Run, ValidationResult
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from pydantic import ValidationError
@@ -216,3 +217,66 @@ async def test_batch_api_rejects_unknown_fields_and_sets(client):
     assert (
         await client.post("/api/harness/batches", json={"conversation_id": "missing"})
     ).status_code == 404
+
+
+@pytest.mark.parametrize("source", ["test_injected", "agent_generated"])
+async def test_batch_api_rejects_source_override_before_execution(
+    client, sessions, monkeypatch, source
+):
+    async def unexpected_execution(*args, **kwargs):
+        pytest.fail("A source override must be rejected before batch execution")
+
+    monkeypatch.setattr("analytics_agent.api.harness_batches.run_batch", unexpected_execution)
+    response = await client.post("/api/harness/batches", json={"source": source})
+
+    assert response.status_code == 422
+    async with sessions() as session:
+        assert await batch_store.list_batches(session, None) == []
+        assert await store.list_runs(session, None) == []
+
+
+@pytest.mark.parametrize("source", ["test_injected", "agent_generated"])
+def test_case_source_survives_request_conversion(source):
+    definition = CaseDefinition(case_id="src", claimed_value="10", source=source)
+
+    request = definition.to_request("conversation-1")
+
+    assert request.source == source
+    assert request.model_dump()["source"] == source
+
+
+@pytest.mark.parametrize("source", ["test_injected", "agent_generated"])
+async def test_batch_service_receives_the_case_source(sessions, monkeypatch, source):
+    seen: list[tuple[str, str]] = []
+
+    async def local_double(request, session, **kwargs):
+        seen.append((request.case_id, request.source))
+        run = Run(source=request.source, rule_id=request.rule_id, case_id=request.case_id)
+        run.result = ValidationResult(status="passed", reason="within_tolerance")
+        return run
+
+    monkeypatch.setattr(batch_module, "run_case", local_double)
+    batch = await batch_module.run_batch(
+        mini(
+            CaseDefinition(
+                case_id="src", claimed_value="10", source=source, expected_status="passed"
+            )
+        ),
+        sessions,
+    )
+
+    assert seen == [("src", source)]
+    assert batch.outcomes[0].result_status == "passed"
+    assert batch.outcomes[0].matches_expected is True
+
+
+@pytest.mark.parametrize("source", ["test_injected", "agent_generated"])
+def test_expected_status_stays_evaluation_only(source):
+    definition = CaseDefinition(
+        case_id="src", claimed_value="10", source=source, expected_status="failed"
+    )
+
+    request = definition.to_request(None)
+
+    assert "expected_status" not in request.model_dump()
+    assert request.source == source
