@@ -133,3 +133,20 @@ hashes for every file. The sanitized evidence hash is
 
 机器可读证据见同目录 `sprint3-windows-live-acceptance-2026-11-17.json`；本地截图、日志、
 API 导出和哈希清单在 `D:\Temp\edah_acceptance_2026-11-17\`。
+
+## Demo video (local artifact)
+
+Recorded from the accepted commit on the same Windows machine:
+
+```text
+CS5351_Sprint3_DataAgentHarness_Windows_Demo_2026-11-17.mp4
+66.4 s, 1280x720, silent with Chinese captions (title -> fixed cases -> one-cent
+trace -> single run -> live model -> restart history -> result card).
+SHA-256 e1581e13d27f86e487e1dee6b460c63182c72b8014097c51d54e7ba688bd24e2
+```
+
+The MP4, its narration script and the raw segments stay under
+`D:\Temp\edah_acceptance_2026-11-17\video-demo\` and are intentionally not
+committed; the course submission can upload the MP4 separately. The video shows
+the accepted `main@45216b1` build and matching reports; it does not add new
+features or claim live-provider independence.
