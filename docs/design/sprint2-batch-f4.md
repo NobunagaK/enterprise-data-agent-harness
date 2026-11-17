@@ -1,5 +1,8 @@
 # Sprint 2 F4: batch evaluation (v1)
 
+> Execution-boundary update: [batch budgets and interruption semantics](sprint2-batch-budgets.md)
+> defines the v2 behavior and supersedes this historical v1 timeout description.
+
 Status: implementation proposal for peer review; not an accepted increment.
 Base: `sprint2/shared-contracts` (PR #14), itself based on `main@8359a46`.
 Owner: Zikai He. Reviewers: Zefeng Chen (rule/boundary reuse, no duplicated formula),
