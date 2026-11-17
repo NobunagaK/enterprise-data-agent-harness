@@ -129,3 +129,66 @@ async def test_cli_reports_bad_inputs_without_payload_and_preserves_exports(tmp_
     overwrite = subprocess.run(command[:-1] + [str(good)], capture_output=True)
     assert overwrite.returncode == 2
     assert good.read_text(encoding="utf-8") == original
+
+
+@pytest.mark.parametrize("alias_kind", ["hardlink", "case_variant"])
+async def test_cli_rejects_output_alias_of_input(tmp_path, alias_kind):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    original = run.model_dump_json()
+    source = tmp_path / "run.json"
+    source.write_text(original, encoding="utf-8")
+    alias = tmp_path / ("alias.json" if alias_kind == "hardlink" else "RUN.JSON")
+    if alias_kind == "hardlink":
+        alias.hardlink_to(source)
+    elif not alias.exists() or not alias.samefile(source):
+        pytest.skip("requires a case-insensitive filesystem")
+    script = Path(__file__).resolve().parents[2] / "scripts/audit_harness_reports.py"
+    result = subprocess.run(
+        [sys.executable, str(script), str(source), "--output", str(alias)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2
+    assert "output must not overwrite an input report" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert source.read_text(encoding="utf-8") == original
+
+
+@pytest.mark.parametrize("output_kind", ["missing_parent", "directory"])
+async def test_cli_output_write_failure_is_a_clean_error(tmp_path, output_kind):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    original = run.model_dump_json()
+    source = tmp_path / "run.json"
+    source.write_text(original, encoding="utf-8")
+    output = tmp_path / "missing" / "audit.json" if output_kind == "missing_parent" else tmp_path
+    script = Path(__file__).resolve().parents[2] / "scripts/audit_harness_reports.py"
+    result = subprocess.run(
+        [sys.executable, str(script), str(source), "--output", str(output)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2
+    assert "unable to write output report" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert source.read_text(encoding="utf-8") == original
+
+
+async def test_cli_duplicate_run_ids_fail_acceptance(tmp_path):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    original = run.model_dump_json()
+    sources = [tmp_path / "first.json", tmp_path / "second.json"]
+    for source in sources:
+        source.write_text(original, encoding="utf-8")
+    output = tmp_path / "audit.json"
+    script = Path(__file__).resolve().parents[2] / "scripts/audit_harness_reports.py"
+    result = subprocess.run(
+        [sys.executable, str(script), *map(str, sources), "--output", str(output)],
+        capture_output=True,
+    )
+    assert result.returncode == 1
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert data["input_count"] == 2
+    assert data["input_errors"] == []
+    assert data["duplicate_run_ids"] == [run.id]
+    assert all(row["structurally_valid"] and row["terminal"] for row in data["runs"])
+    assert all(source.read_text(encoding="utf-8") == original for source in sources)

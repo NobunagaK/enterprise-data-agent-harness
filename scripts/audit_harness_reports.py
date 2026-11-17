@@ -14,7 +14,15 @@ def main() -> int:
     parser.add_argument("reports", nargs="+", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_intermixed_args()
-    if args.output.resolve() in {path.resolve() for path in args.reports}:
+    try:
+        collision = any(
+            args.output.resolve() == path.resolve()
+            or (args.output.exists() and path.exists() and args.output.samefile(path))
+            for path in args.reports
+        )
+    except OSError:
+        parser.error("unable to check output file identity")
+    if collision:
         parser.error("output must not overwrite an input report")
     runs = []
     errors = []
@@ -27,9 +35,12 @@ def main() -> int:
     result = summarize_runs(runs)
     result["input_count"] = len(args.reports)
     result["input_errors"] = errors
-    args.output.write_text(
-        json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    try:
+        args.output.write_text(
+            json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+    except OSError:
+        parser.error("unable to write output report; check directory and permissions")
     return int(
         bool(
             errors
