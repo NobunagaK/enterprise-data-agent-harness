@@ -1,89 +1,91 @@
-# Sprint 2 integration plan
+# Sprint 2 delivery and handoff
 
-> F2 implementation update: see [sales verification](design/sprint2-verification-f2.md) for the executable total rule, discriminated requests, Python caller migration and test evidence. The original planning/baseline text below is retained for context.
-> 功能②实现更新：总额规则、联合请求、Python 调用迁移及测试证据见上述链接；下文保留原计划/基线记录。
+Recorded on **2026-11-17 (Asia/Shanghai)**. Code baseline:
+[`main@45216b1`](https://github.com/NobunagaK/enterprise-data-agent-harness/commit/45216b1cdbb3d5f108ba39f4a0dbf4873cce8b3b).
+All three prototype features are integrated and fixed-case acceptance passed.
+Final native-Windows application, live-provider and course demonstration
+acceptance remain separate. This updates the earlier partial integration plan;
+the original decisions remain in the designs and Git history.
 
-Status: scoped planning clarification for PR #14 peer review. This document
-records the F2/F4 dependency order and session isolation requirements; it is not
-a complete Sprint 2 backlog or evidence of completed feature acceptance.
+## Delivered scope
 
-## 1. Ownership and delivery order
+Fixed sales cases → actual SQL → captured evidence → Decimal verification →
+persisted reports → the existing React UI. This does not validate arbitrary chat
+answers. Amounts are integer CNY cents; growth tolerance is **0.01 percentage
+points, inclusive**; totals use exact cent equality. `passed`, `failed`,
+`unverifiable` and `tool_error` remain distinct, as do `test_injected` and
+`agent_generated` claims.
 
-| Owner | Increment | Dependency and acceptance boundary |
+| Feature / original lead | Delivered increment | Evidence |
 |---|---|---|
-| Zefeng Chen | Shared contracts and F2 numerical verification | Establish the shared baseline; then implement and test `sales_total` and extend `RunRequest` to a union discriminated by `rule_id`, with rule-specific parameters and units. Preserve existing growth requests and legacy report reads. Haoyu and Zikai review shared-field changes before integration. |
-| Zikai He | F4 batch evaluation | The first increment runs only `growth_rate` cases against the current contract. After the F2 extension is reviewed and integrated, add mixed-rule cases and regression tests. Batch orchestration calls the shared service and counts validation outcomes without duplicating formulas. |
-| Haoyu Shen | F3 execution traces and evidence display | Develop against the shared report fields; review event/error attribution and the F2 contract extension. Trace work can proceed alongside the first growth-only batch increment. |
+| F2 / Zefeng | Two rules, rule-specific contracts/units, evidence association, exact Decimal boundary | [F2 design](design/sprint2-verification-f2.md), #23 |
+| F3 / Haoyu | Observable steps, SQL/evidence links, safe errors, timing/known usage, React traces, scoped overhead measurement | [trace](design/sprint2-trace-f3.md), [UI](design/sprint2-trace-ui-f3.md), [measurement](testing/sprint2-trace-performance.md), #17/#18/#28 |
+| F4 / Zikai | Versioned/mixed case sets, isolated sessions, summaries/history, budgets and interruption states | [mixed cases](design/sprint2-mixed-case-sets.md), [budgets](design/sprint2-batch-budgets.md), #15/#16/#25/#26/#27 |
 
-Delivery sequence: shared baseline → growth-only F4 increment; F2 rule/contract
-extension → mixed-rule F4 increment. Growth-only delivery is an intermediate
-milestone and does not satisfy mixed-rule acceptance. Mixing rules must preserve
-the distinction between `passed`, `failed`, `unverifiable` and `tool_error`, and
-between test-injected and actual model claims.
+Original feature ownership is not an assertion that each person wrote every
+integration fix. Actual authors/reviews remain on GitHub; no hours or meetings
+are inferred. Deploy one worker and one replica per database; support 1–20
+bundled cases, default case/batch budgets 60/300 seconds, maxima 120/600 seconds.
+Cancellation waits for owned workers and actual session closure; cleanup may
+exceed the budget. Hard thread killing, distributed ownership, arbitrary SQL and
+enterprise expansion are outside this prototype scope.
 
-## 2. Session ownership and required regression evidence
+## Completion evidence and documents
 
-The [shared execution contract](design/sprint2-shared-contracts.md) requires one
-dedicated `AsyncSession` per case, even for sequential execution. `run_case`
-commits its initial and final snapshots; the batch caller creates and closes the
-session on every path. Batch metadata writes use a separate session. Release any
-conversation-preflight session before starting case execution.
+- [User stories, acceptance criteria and NFRs](design/sprint2-requirements-acceptance.md)
+- [Integrated test/runtime evidence](testing/sprint2-integrated-acceptance.md)
+- [Actual reviews, code quality and retrospective observations](process/sprint2-review-quality-retrospective.md)
+- [Debt and risk register](process/sprint2-debt-risk-register.md)
+- [Shared contracts](design/sprint2-shared-contracts.md)
 
-F4 must demonstrate with regression tests that:
+Fresh cloud results: **594 backend/MCP**, **78 frontend**, **44 browser** tests
+passed, plus build/Ruff/mypy. Final main has **9 successful CI jobs**, including
+**231 Windows Harness** and **9 Windows benchmark** tests. Actual HTTP execution
+generated 18 reports and a separate expired batch; all 18 reports and 3 batches
+were unchanged after a server-process restart. Older per-feature counts remain
+historical evidence, not results from this run.
 
-- A middle case failing or timing out after its initial save does not prevent
-  earlier committed reports from being read.
-- A subsequent case completes and persists using its own fresh session.
-- Final-save failure is not presented as a successfully persisted final report.
+## Sprint 3 deliverables, in order
 
-Cancellation cleanup and hard worker time limits require separate implementation
-and evidence; a per-case session or `asyncio.wait_for` alone does not prove them.
+| Task | Reviewable completion evidence |
+|---|---|
+| Review latest #30 against final main | Current-head review/CI, source-export protection and documented structural-check limits; #29 was replaced by #30 |
+| Run the full application on native Windows | OS/Python/Node/commit, installation/bootstrap/start, both rules, mixed batch, SQL/evidence, history after restart, logs/screenshots |
+| Verify a configured real provider | Sanitized actual application/API reports, model/source identity, SQL/evidence/result links, persisted/reloaded reports and observed failure handling; address #12 |
+| Reconcile final acceptance matrix | Independent expected results, four categories, failure isolation, budget/cancellation limits, legacy reads, separate fixed/model populations; label fault injection |
+| Finish delivery documentation | Evidence for #11/#12, remaining debt, reproducible setup and exact demonstration commit |
+| Record the video after acceptance | Demonstrate the accepted Windows version and matching reports; no new enterprise features required |
 
-## 3. Review and completion
-
-Each author requests substantive review from the other two developers. Reviewers
-check the final commit and submit their own approval only when satisfied; a
-comment or green CI is not a human approval. Record actual test evidence on the
-corresponding feature PR. This documentation change adds no runtime behavior,
-does not mark F2/F3/F4 Done, and does not establish real-model acceptance.
+A newcomer can take a bounded Windows reproduction or evidence/document review.
+Repository merge authority depends on GitHub permissions and branch rules, not
+the original feature allocation. Team/course membership is agreed separately;
+new access does not establish earlier contributions. Missing historical standup,
+effort or burndown records are not fabricated.
 
 ---
 
-# 中文版本：Sprint 2 接入计划
+# 中文：Sprint 2 交付与交接
 
-状态：针对 PR #14 的局部计划澄清，待同伴评审。本文件记录功能②/④的依赖顺序及 session 隔离要求，
-不是完整 Sprint 2 待办清单，也不是功能验收已完成的证据。
+记录日期：**2026-11-17（北京时间）**，基线 `main@45216b1`。三个原型功能已集成，固定案例验收通过；
+完整 Windows 应用、真实模型和课程演示验收仍单独完成。本文件更新早期局部计划，原决定保留在设计和 Git 历史。
 
-## 1. 分工与交付顺序
+范围为固定销售案例、实际 SQL、证据、Decimal 验证、报告持久化和原 React 页面，不验证普通聊天任意答案。
+金额保存人民币整数分；增长率容差 0.01 个百分点、包含边界；总额精确相等。四类结果及测试/模型来源始终分开。
 
-- Zefeng Chen：共同接口与功能②数值验证。先建立共同基线，再实现并测试 `sales_total`，
-  将 `RunRequest` 扩展为以 `rule_id` 区分的联合类型，分别约束参数和单位。
-  保持原增长率请求和旧报告兼容；共同字段变更由 Haoyu、Zikai 两人评审后集成。
-- Zikai He：功能④批量评估。第一版仅运行 `growth_rate` 案例；功能②扩展通过评审并集成后，
-  再加入混合规则案例及回归测试。批次调用共同服务、统计验证结果，不复制公式。
-- Haoyu Shen：功能③轨迹采集与证据展示。使用共同报告字段，评审事件/错误归因及功能②契约变更；
-  可与第一版增长率批次并行开发。
+功能②原负责人 Zefeng：两条规则、接口/单位、证据关联、精确边界。功能③原负责人 Haoyu：可观察步骤、
+SQL/证据、状态/时间/已知用量、React 轨迹和限定范围的性能测量。功能④原负责人 Zikai：版本化混合案例、
+独立 session、汇总/历史、预算和中断状态。此分工不代表每项后续修补均由本人独自完成，实际作者/评审以 GitHub 为准。
 
-交付顺序：共同基线 → 功能④增长率批次；功能②规则/契约扩展 → 功能④混合规则批次。
-增长率批次只是阶段性交付，不满足混合规则验收。
-混合规则仍须区分 passed、failed、unverifiable、tool_error，以及测试注入声明和真实模型声明。
+每数据库单 worker/单副本，支持 1–20 例，默认单例/整批 60/300 秒，上限 120/600 秒。
+等待所拥有的线程和实际连接关闭后才保存终态；协作取消的清理可超预算，不扩展硬杀线程、分布式归属或任意 SQL。
 
-## 2. Session 归属与必需回归证据
+上方链接提供用户故事/NFR、验收、评审/代码质量/回顾、技术债和共同接口。
+本次后端/MCP **594 项**、前端 **78 项**、浏览器 **44 项**及构建/静态检查通过；最终 main **9 个 CI 作业通过**，
+其中 Windows Harness **231 项**、基准 **9 项**。实际 HTTP 生成的 18 份报告和 3 个批次在服务重启后内容完全一致。
 
-[共同执行契约](design/sprint2-shared-contracts.md) 要求每个案例独立使用一个 `AsyncSession`，
-串行执行也不例外。`run_case` 提交初态和终态快照；批次调用者在所有路径负责创建和关闭 session。
-批次元数据写入使用其他 session；执行案例前先释放会话存在性预检查所用的 session。
+Sprint 3 顺序：①评审 #30 最新版本；②原生 Windows 完整安装、迁移、启动、UI 和重启复现；
+③真实模型经应用/API 调用及持久化重读，补 #12 证据；④独立核对案例预期、错误隔离、预算/取消、旧报告与来源；
+⑤补 #11/#12、技术债和交付说明；⑥验收后录制匹配提交的 Windows 视频。
 
-功能④必须通过回归测试证明：
-
-- 中间案例在初态保存后失败或超时，不影响读取前序已提交报告。
-- 后续案例使用自己的新 session，仍能完成并持久化。
-- 终态保存失败不会被展示为已成功保存终态。
-
-取消清理和工作线程硬超时仍需单独实现并提供证据；独立 session 或 `asyncio.wait_for` 本身不能证明这些能力。
-
-## 3. 评审与完成标准
-
-每位作者请另外两位开发者进行实质评审。评审者检查最终提交，确认后自行正式批准；
-普通评论和绿色 CI 都不等于人工批准。实际测试证据记录在对应功能 PR 中。
-本次文档变更不增加运行行为，不将功能②/③/④标为 Done，也不代表真实模型已验收。
+新成员可承担有具体交付物的 Windows 复现或证据/文档检查。合并权由 GitHub 权限和分支规则决定，
+团队/课程成员资格另行确认。新增权限不等于过去参与开发，缺失的站会、工时和燃尽数据不补造。
