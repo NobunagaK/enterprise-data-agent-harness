@@ -1,0 +1,92 @@
+{
+  "record_type": "retained_evidence_review",
+  "review_date": "2026-11-17",
+  "timezone": "Asia/Shanghai",
+  "tested_application_revision": "45216b1cdbb3d5f108ba39f4a0dbf4873cce8b3b",
+  "audit_code_revision": "a8572e1e453731c0797155ba8166327abd4ce394",
+  "original_pr_head": "01058758aa315039a5e5e3c56d057d98e7027a5f",
+  "original_evidence_sha256": "c327b3b0e40e26088f5db07a7448e965143304421c5c5b35e3d19ef98b6a9851",
+  "evidence_sha256": "853f56f16d14c0bb54cc036387a0a07501289c73783a0992db6fafb2858e4906",
+  "run_reports_preserved": true,
+  "cli_exit_code": 0,
+  "groups": {
+    "test_injected": {
+      "reports": 0,
+      "terminal_reports": 0,
+      "structurally_valid_reports": 0,
+      "evidence_links": {
+        "numerator": 0,
+        "denominator": 0
+      },
+      "claim_links": {
+        "numerator": 0,
+        "denominator": 0
+      },
+      "result_counts": {}
+    },
+    "agent_generated": {
+      "reports": 4,
+      "terminal_reports": 4,
+      "structurally_valid_reports": 4,
+      "evidence_links": {
+        "numerator": 3,
+        "denominator": 3
+      },
+      "claim_links": {
+        "numerator": 3,
+        "denominator": 3
+      },
+      "result_counts": {
+        "passed": 3,
+        "tool_error": 1
+      }
+    }
+  },
+  "numerical_recomputation": [
+    {
+      "name": "growth",
+      "run_id": "30765e9f-5ecb-4f0c-8851-b2e3025e6cb8",
+      "rule_id": "growth_rate",
+      "computed_value": "10.0",
+      "unit": "percent"
+    },
+    {
+      "name": "sales_total",
+      "run_id": "3f32afdc-958a-4531-9c52-115635cb6f9d",
+      "rule_id": "sales_total",
+      "computed_value": "11000",
+      "unit": "CNY_cent"
+    },
+    {
+      "name": "ui",
+      "run_id": "b04a7e05-ae6c-44cd-93d9-3c90a99e9296",
+      "rule_id": "growth_rate",
+      "computed_value": "10.0",
+      "unit": "percent"
+    }
+  ],
+  "screenshots": {
+    "batch-summary.png": {
+      "sha256": "b055848865a0f20e99feba392eab5dedc486749a94c74e55bd5f39a57abf24cf",
+      "bytes": 23305
+    },
+    "history-after-restart.png": {
+      "sha256": "83996135961ae5075449846288d8cebc1c518658a950724ff007b5a6adddd68d",
+      "bytes": 70312
+    },
+    "live-model-card.png": {
+      "sha256": "c2c9e0dfab705101b3801a408a90047325037c409adfd29f56e0c8eee3664c1e",
+      "bytes": 30783
+    },
+    "trace-card.png": {
+      "sha256": "25e1a585b83a78b204483996ffeba04f0c4f55f226937c851b3b04cc2f6153d3",
+      "bytes": 42368
+    }
+  },
+  "limits": [
+    "This reviews committed reports and images, not a new Windows or live-provider execution.",
+    "Before/after restart payload pairs, installation/cleanup logs and the local video/manifest are not committed.",
+    "Full JSON equality, Windows cleanup and the video checksum are reported local observations; they are not independently reproduced by this receipt.",
+    "Independent Windows/provider reproduction and final video delivery remain pending."
+  ]
+}
