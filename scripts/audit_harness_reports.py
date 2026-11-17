@@ -4,8 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from analytics_agent.harness.audit import summarize_runs
-from analytics_agent.harness.models import Run
+from analytics_agent.harness.audit import parse_run_export, summarize_runs
 from pydantic import ValidationError
 
 
@@ -28,7 +27,7 @@ def main() -> int:
     errors = []
     for index, path in enumerate(args.reports):
         try:
-            runs.append(Run.model_validate_json(path.read_text(encoding="utf-8-sig")))
+            runs.append(parse_run_export(path.read_text(encoding="utf-8-sig")))
         except (OSError, UnicodeError, ValidationError, ValueError):
             # Do not expose model text, SQL, credentials or validation input payloads.
             errors.append({"input_index": index, "code": "invalid_or_unreadable_report"})

@@ -1,8 +1,32 @@
 """Read-only structural acceptance checks; never reclassify numerical results."""
 
+import json
 from collections import Counter
+from datetime import datetime
 
 from analytics_agent.harness.models import Run
+
+
+def parse_run_export(payload: str) -> Run:
+    """Read existing identities before the creation models can supply defaults."""
+    data = json.loads(payload)
+    if not isinstance(data, dict) or "started_at" not in data:
+        raise ValueError("invalid_run_export")
+    records = [data]
+    for field in ("steps", "evidence"):
+        items = data.get(field, [])
+        if not isinstance(items, list):
+            raise ValueError("invalid_run_export")
+        records.extend(items)
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("invalid_run_export")
+        identity = record.get("id")
+        if not isinstance(identity, str) or not identity.strip():
+            raise ValueError("missing_or_invalid_identity")
+    # Schema/rule defaults and absent legacy step measurements remain compatible.
+    # Run.started_at is required above so importing never manufactures that time.
+    return Run.model_validate(data)
 
 
 def audit_run(run: Run) -> dict:
@@ -11,6 +35,20 @@ def audit_run(run: Run) -> dict:
     def flag(code: str, record_id: str | None = None) -> None:
         issues.append({"code": code, "record_id": record_id})
 
+    def check_times(
+        started_at: datetime | None,
+        finished_at: datetime | None,
+        kind: str,
+        record_id: str,
+    ) -> None:
+        if any(
+            value is not None and value.utcoffset() is None for value in (started_at, finished_at)
+        ):
+            flag(f"naive_{kind}_timestamp", record_id)
+        elif started_at is not None and finished_at is not None and finished_at < started_at:
+            flag(f"reversed_{kind}_timestamps", record_id)
+
+    check_times(run.started_at, run.finished_at, "run", run.id)
     steps = Counter(step.id for step in run.steps)
     evidence_ids = Counter(item.id for item in run.evidence)
     terminal = run.state != "running"
@@ -35,11 +73,7 @@ def audit_run(run: Run) -> dict:
                     parent = next(item for item in run.steps if item.id == parent).parent_step_id
         if terminal and step.status == "running":
             flag("open_step_in_terminal_run", step.id)
-        if step.started_at and step.finished_at:
-            if step.started_at.utcoffset() is None or step.finished_at.utcoffset() is None:
-                flag("naive_step_timestamp", step.id)
-            elif step.finished_at < step.started_at:
-                flag("reversed_step_timestamps", step.id)
+        check_times(step.started_at, step.finished_at, "step", step.id)
         if (
             run.schema_version == 2
             and step.status in {"completed", "error"}

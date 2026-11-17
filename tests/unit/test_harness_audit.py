@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+from datetime import timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -192,3 +193,158 @@ async def test_cli_duplicate_run_ids_fail_acceptance(tmp_path):
     assert data["duplicate_run_ids"] == [run.id]
     assert all(row["structurally_valid"] and row["terminal"] for row in data["runs"])
     assert all(source.read_text(encoding="utf-8") == original for source in sources)
+
+
+def _audit_exports(tmp_path, *payloads):
+    sources = [tmp_path / f"run-{index}.json" for index in range(len(payloads))]
+    for source, payload in zip(sources, payloads, strict=True):
+        # PowerShell exports may contain a UTF-8 BOM.
+        source.write_text(json.dumps(payload), encoding="utf-8-sig")
+    originals = [source.read_bytes() for source in sources]
+    output = tmp_path / "audit.json"
+    script = Path(__file__).resolve().parents[2] / "scripts/audit_harness_reports.py"
+    result = subprocess.run(
+        [sys.executable, str(script), *map(str, sources), "--output", str(output)],
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    assert "Traceback" not in result.stderr
+    assert [source.read_bytes() for source in sources] == originals
+    return result.returncode, json.loads(output.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("identity", [None, "", " \t"], ids=["missing", "empty", "blank"])
+async def test_cli_rejects_unidentified_error_exports(tmp_path, monkeypatch, identity):
+    def unavailable_sql_tools(*args, **kwargs):
+        raise RuntimeError("injected_query_failure")
+
+    monkeypatch.setattr(
+        "analytics_agent.harness.runner.SQLAlchemyQueryEngine.get_tools", unavailable_sql_tools
+    )
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    assert run.state == "error" and run.result.reason == "query_failed"
+    assert run.evidence == []
+    payload = run.model_dump(mode="json")
+    if identity is None:
+        del payload["id"]
+    else:
+        payload["id"] = identity
+    code, result = _audit_exports(tmp_path, payload, payload)
+    assert code == 1
+    assert result["input_errors"] == [
+        {"input_index": index, "code": "invalid_or_unreadable_report"} for index in (0, 1)
+    ]
+    assert result["runs"] == []  # Never count generated identities as accepted reports.
+    assert result["groups"]["test_injected"]["reports"] == 0
+
+
+@pytest.mark.parametrize("record_kind", ["step", "evidence"])
+@pytest.mark.parametrize("identity", [None, "", " \t"], ids=["missing", "empty", "blank"])
+async def test_cli_rejects_unidentified_unreferenced_records(tmp_path, record_kind, identity):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    payload = run.model_dump(mode="json")
+    if record_kind == "step":
+        record = next(step for step in payload["steps"] if step["kind"] == "validation")
+    else:
+        # Retain the original claim's valid link; only the extra record lacks identity.
+        record = dict(payload["evidence"][0])
+        payload["evidence"].append(record)
+    if identity is None:
+        del record["id"]
+    else:
+        record["id"] = identity
+    code, result = _audit_exports(tmp_path, payload)
+    assert code == 1
+    assert result["input_errors"] == [{"input_index": 0, "code": "invalid_or_unreadable_report"}]
+    assert result["runs"] == []
+
+
+async def test_cli_does_not_invent_run_start_time(tmp_path):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    # A future finish would otherwise hide the newly generated import-time start.
+    run.finished_at += timedelta(days=1)
+    payload = run.model_dump(mode="json")
+    del payload["started_at"]
+    code, result = _audit_exports(tmp_path, payload)
+    assert code == 1
+    assert result["input_errors"] == [{"input_index": 0, "code": "invalid_or_unreadable_report"}]
+    assert result["runs"] == []
+
+
+@pytest.mark.parametrize(
+    "scope,corruption,expected_code",
+    [
+        ("run", "reversed", "reversed_run_timestamps"),
+        ("run", "started_at", "naive_run_timestamp"),
+        ("run", "finished_at", "naive_run_timestamp"),
+        ("skipped", "started_at", "naive_step_timestamp"),
+        ("skipped", "finished_at", "naive_step_timestamp"),
+        ("legacy", "started_at", "naive_step_timestamp"),
+        ("legacy", "finished_at", "naive_step_timestamp"),
+        ("step", "reversed", "reversed_step_timestamps"),
+    ],
+)
+async def test_cli_rejects_invalid_available_timestamps(tmp_path, scope, corruption, expected_code):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    if scope == "run":
+        record = run
+    elif scope == "skipped":
+        record = Step(kind="context", status="skipped")
+        run.steps.append(record)
+    else:
+        record = run.steps[0]
+        if scope == "legacy":
+            run.schema_version = 1
+            record.started_at = record.finished_at = record.duration_ms = None
+    if corruption == "reversed":
+        record.finished_at = record.started_at - timedelta(seconds=1)
+    else:
+        setattr(record, corruption, run.started_at.replace(tzinfo=None))
+    code, result = _audit_exports(tmp_path, run.model_dump(mode="json"))
+    assert code == 1
+    assert result["input_errors"] == []
+    assert expected_code in {issue["code"] for issue in result["runs"][0]["issues"]}
+    assert result["groups"]["test_injected"]["structurally_valid_reports"] == 0
+
+
+@pytest.mark.parametrize("schema_version", [1, 2])
+@pytest.mark.parametrize(
+    "available", [(), ("started_at",), ("finished_at",), ("started_at", "finished_at")]
+)
+async def test_cli_preserves_optional_legacy_and_skipped_measurements(
+    tmp_path, schema_version, available
+):
+    run = await execute(Run(schema_version=schema_version, source="test_injected"))
+    if schema_version == 1:
+        records = run.steps
+    else:
+        records = [Step(kind="context", status="skipped")]
+        run.steps.extend(records)
+    for record in records:
+        record.started_at = run.started_at if "started_at" in available else None
+        record.finished_at = run.finished_at if "finished_at" in available else None
+        record.duration_ms = None
+    payload = run.model_dump(mode="json", exclude_none=True)
+    if schema_version == 1:
+        del payload["schema_version"]  # Original exports omitted the version too.
+        del payload["rule_id"]
+    code, result = _audit_exports(tmp_path, payload)
+    assert code == 0
+    assert result["runs"][0]["run_id"] == run.id
+    assert result["runs"][0]["schema_version"] == schema_version
+    assert result["runs"][0]["issues"] == []
+
+
+async def test_cli_compares_aware_offsets_and_allows_equal_endpoints(tmp_path):
+    run = await execute(Run(schema_version=2, source="test_injected"))
+    # Different clock displays must be compared as instants, not naive wall times.
+    for record in [run, *run.steps]:
+        record.started_at = record.started_at.astimezone(timezone(timedelta(hours=8)))
+        record.finished_at = record.finished_at.astimezone(timezone(timedelta(hours=-5)))
+    last_step = run.steps[-1]
+    last_step.finished_at = last_step.started_at.astimezone(timezone(timedelta(hours=-5)))
+    last_step.duration_ms = 0
+    code, result = _audit_exports(tmp_path, run.model_dump(mode="json"))
+    assert code == 0
+    assert result["runs"][0]["issues"] == []
