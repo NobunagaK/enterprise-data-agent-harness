@@ -1,6 +1,12 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-11-17T11:30:00Z",
+  "record_date": "2026-11-17",
+  "timezone": "Asia/Shanghai",
+  "recorded_at": null,
+  "recorded_at_note": {
+    "original_supplied_value": "2026-11-17T11:30:00Z",
+    "reason": "The supplied metadata precedes the included report runs at 11:44-11:47 UTC. Exact record creation time is unconfirmed; no replacement time is invented."
+  },
   "revision": "45216b1cdbb3d5f108ba39f4a0dbf4873cce8b3b",
   "environment": {
     "os": "Windows 11 10.0.26300",
@@ -653,7 +659,14 @@
       "05d-live-model-trace.png",
       "06-history-after-restart.png"
     ],
-    "manifest": "artifact-manifest.json"
+    "manifest": "artifact-manifest.json",
+    "scope": "The screenshots and manifest names above refer to the original local directory, D:/Temp/edah_acceptance_2026-11-17/. Only the four files listed in committed_screenshots are published here.",
+    "committed_screenshots": [
+      "docs/testing/measurements/sprint3-windows-live-2026-11-17/batch-summary.png",
+      "docs/testing/measurements/sprint3-windows-live-2026-11-17/trace-card.png",
+      "docs/testing/measurements/sprint3-windows-live-2026-11-17/live-model-card.png",
+      "docs/testing/measurements/sprint3-windows-live-2026-11-17/history-after-restart.png"
+    ]
   },
   "limitations": [
     "Fixed synthetic sales-v1 data only; no customer data.",
@@ -661,6 +674,9 @@
     "Playwright-driven Chromium, not a hand-operated GUI session.",
     "One provider/model (DeepSeek deepseek-flash); independent reproduction remains separate.",
     "The failure case used a deliberately invalid model name; key/base URL were unchanged and restored after the check.",
-    "Leftover harness-sales-* directories predate the S1-T08 cleanup fix and were not deleted; new runs left none."
-  ]
+    "Leftover harness-sales-* directories predate the S1-T08 cleanup fix and were not deleted; new runs left none.",
+    "Before/after restart JSON pairs, install/cleanup logs and artifact-manifest.json remain local; full JSON equality and cleanup observations have not been independently reproduced from this repository.",
+    "The local MP4 and narration were not submitted; duration, content and checksum remain contributor-reported until the file is supplied and checked."
+  ],
+  "checks_basis": "Local execution observations reported by the contributor. Available committed exports and screenshots are reviewed separately; before/after restart pairs and installation/cleanup logs are not included."
 }
