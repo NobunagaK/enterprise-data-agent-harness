@@ -1,7 +1,11 @@
 # Sprint 2 shared contracts
 
+Current delivery status (2026-11-17): the integrated fixed-case acceptance is recorded in
+[Sprint 2 acceptance](../testing/sprint2-integrated-acceptance.md) and the
+[requirements/NFR mapping](sprint2-requirements-acceptance.md). The proposal and
+per-increment statements below retain their original baseline scope.
+
 > F2 implementation update: see [sales verification](sprint2-verification-f2.md) for the executable total rule, discriminated requests, Python caller migration and test evidence. The original planning/baseline text below is retained for context.
-> 功能②实现更新：总额规则、联合请求、Python 调用迁移及测试证据见上述链接；下文保留原计划/基线记录。
 
 Status: implementation proposal for peer review, not a completed Sprint 2 acceptance.
 Base: `main@8359a46827f48936a2e110e939061bff78f11e6f`.
@@ -239,6 +243,10 @@ Existing Issues #11 and #12 remain separate. No auto-merge is authorized by this
 ---
 
 # 中文版本：Sprint 2 共同接口
+
+当前交付状态（2026-11-17）：固定案例集成验收见[验收记录](../testing/sprint2-integrated-acceptance.md)，
+用户故事及 NFR 见[需求对照](sprint2-requirements-acceptance.md)。下文原提案和增量结论保留当时基线范围。
+功能②总额规则、联合请求、Python 调用迁移及旧测试记录见[功能②设计](sprint2-verification-f2.md)。
 
 状态：已实现并提交评审的接口提案，不代表 Sprint 2 已验收。
 基线：`main@8359a46827f48936a2e110e939061bff78f11e6f`。

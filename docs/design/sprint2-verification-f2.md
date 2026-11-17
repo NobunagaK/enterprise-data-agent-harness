@@ -1,5 +1,9 @@
 # Sprint 2 F2: sales evidence verification
 
+Delivery update (2026-11-17): mixed-case selection, traces and batch budgets are
+now integrated in `main@45216b1`; see the [current acceptance record](../testing/sprint2-integrated-acceptance.md).
+The increment description and test counts below remain historical evidence.
+
 This increment implements the F2 extension agreed in `docs/sprint2.md`. It does
 not mark the whole Sprint 2 accepted. Baseline: `main@67153cd`.
 
@@ -128,6 +132,9 @@ acceptance. No meetings, contributions or approvals are fabricated.
 ---
 
 # 中文版本：Sprint 2 功能②销售证据验证
+
+交付更新（2026-11-17）：混合案例、轨迹及批次预算已集成至 `main@45216b1`，
+当前结果见[集成验收](../testing/sprint2-integrated-acceptance.md)。下文增量说明及测试数量保留历史归属。
 
 本增量实现 `docs/sprint2.md` 约定的功能②扩展，基线为 `main@67153cd`，不代表整个 Sprint 2 已验收。
 

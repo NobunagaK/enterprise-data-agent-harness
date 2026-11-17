@@ -1,5 +1,8 @@
 # Sprint 2 F4: batch budgets and interruption semantics
 
+Closeout (2026-11-17): #27 is merged at `main@45216b1`, and #19 is closed with
+reviewed implementation and [final integration evidence](../testing/sprint2-integrated-acceptance.md).
+
 This implements the prototype execution-boundary work tracked in #19. It extends the
 existing synchronous, sequential batch runner and retains one session per case.
 The supported workload is a bundled case set of 1–20 cases in one server process.
@@ -94,6 +97,9 @@ Windows application acceptance remain separate work.
 ---
 
 # 中文版本：Sprint 2 功能④批次预算与中断语义
+
+收尾记录（2026-11-17）：#27 已合并至 `main@45216b1`，#19 已根据评审与
+[最终集成证据](../testing/sprint2-integrated-acceptance.md)关闭。
 
 本增量收尾 #19 中课程原型的执行边界，沿用同步、串行、每例独立 session 的实现。
 支持范围为单服务进程运行 1–20 条内置案例。

@@ -1,0 +1,2534 @@
+{
+  "record_date": "2026-11-17",
+  "timezone": "Asia/Shanghai",
+  "main_commit": "45216b1cdbb3d5f108ba39f4a0dbf4873cce8b3b",
+  "reviewed_pr27_head": "8c46e3ee109d71fbaa1c9760acac3f32bbe02c06",
+  "local_test_merge": "665196783a4c14238a0cd1a92e1d1018259b9ddc",
+  "identical_source_tree": "b6a794d7a7635a3b33e61e542dc36673cd9d6085",
+  "environment": {
+    "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "node": "24.19.0",
+    "pnpm": "11.25.0",
+    "chromium": "154.0.8037.57",
+    "playwright": "1.59.1",
+    "dependencies": {
+      "SQLAlchemy": "2.0.49",
+      "pydantic": "2.13.1",
+      "pytest": "9.0.3",
+      "langchain": "1.2.15",
+      "langgraph": "1.1.6"
+    },
+    "dependency_installation": "reused environment after confirming identical lockfiles and package metadata; loaded checkout verified"
+  },
+  "local_checks": {
+    "backend_unit": 588,
+    "mcp_integration": 6,
+    "frontend": 78,
+    "browser": 44,
+    "ruff": "passed",
+    "ruff_formatted_files": 113,
+    "mypy_source_files": 78,
+    "build": "passed",
+    "eslint_errors": 0,
+    "eslint_warnings": 7
+  },
+  "remote_ci": {
+    "commit": "45216b1cdbb3d5f108ba39f4a0dbf4873cce8b3b",
+    "jobs": [
+      {
+        "name": "Backend — MCP transport integration tests",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986504371",
+        "job_id": 133986504371
+      },
+      {
+        "name": "Backend — unit tests",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503969",
+        "job_id": 133986503969
+      },
+      {
+        "name": "Frontend — typecheck & lint",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503808",
+        "job_id": 133986503808
+      },
+      {
+        "name": "Harness — Windows lifecycle regression",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503765",
+        "job_id": 133986503765
+      },
+      {
+        "name": "Integration tests",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067972019/job/133986503745",
+        "job_id": 133986503745
+      },
+      {
+        "name": "Trace benchmark — Windows smoke",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503734",
+        "job_id": 133986503734
+      },
+      {
+        "name": "E2E — Playwright",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503725",
+        "job_id": 133986503725
+      },
+      {
+        "name": "Backend — lint & typecheck",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971815/job/133986503506",
+        "job_id": 133986503506
+      },
+      {
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/NobunagaK/enterprise-data-agent-harness/actions/runs/44067971790/job/133986503077",
+        "job_id": 133986503077
+      }
+    ]
+  },
+  "capture": {
+    "captured_at": "2026-11-17T10:50:33.878866+00:00",
+    "batches": [
+      {
+        "schema_version": 2,
+        "id": "dad2a2e6-ca36-4b3e-9851-f339a147157d",
+        "case_set_id": "sprint2-sales-v1",
+        "case_set_version": "1",
+        "conversation_id": null,
+        "state": "completed",
+        "started_at": "2026-11-17T10:50:33.604713Z",
+        "finished_at": "2026-11-17T10:50:33.749438Z",
+        "outcomes": [
+          {
+            "case_id": "growth-exact",
+            "state": "completed",
+            "run_id": "bf631873-c4f1-4fcc-b05a-315877955086",
+            "result_status": "passed",
+            "reason": "within_tolerance",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": true,
+            "duration_ms": 19
+          },
+          {
+            "case_id": "growth-boundary-pass",
+            "state": "completed",
+            "run_id": "c80a5b5c-f6d3-46e4-b950-29d7e4529571",
+            "result_status": "passed",
+            "reason": "within_tolerance",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-boundary-fail",
+            "state": "completed",
+            "run_id": "b79c67ed-7c0f-415d-bb6a-363270428395",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-wrong",
+            "state": "completed",
+            "run_id": "5e2b1b1a-5bf8-47cb-ae91-2414b4e522fb",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-sign-error",
+            "state": "completed",
+            "run_id": "eb1786f2-5555-46f9-81e2-b1db3d17915d",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-ratio-as-percent",
+            "state": "completed",
+            "run_id": "01c6f508-68b9-4075-a9f5-3955fa4d6961",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-malformed",
+            "state": "completed",
+            "run_id": "3a53fa20-889e-4f16-b0c5-8282a2e984e9",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-nan",
+            "state": "completed",
+            "run_id": "59564811-e4f6-4db5-90e4-e993111f428f",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 8
+          },
+          {
+            "case_id": "growth-infinite",
+            "state": "completed",
+            "run_id": "d5f2638d-6e4b-48f8-921a-796ca47374b5",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 9
+          },
+          {
+            "case_id": "growth-empty",
+            "state": "completed",
+            "run_id": "e05ca401-44e8-4b2a-af8a-4a52b99254dc",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 8
+          }
+        ],
+        "counts": {
+          "attempted": 10,
+          "completed": 10,
+          "passed": 2,
+          "failed": 4,
+          "unverifiable": 4,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0
+        },
+        "case_ids": [
+          "growth-exact",
+          "growth-boundary-pass",
+          "growth-boundary-fail",
+          "growth-wrong",
+          "growth-sign-error",
+          "growth-ratio-as-percent",
+          "growth-malformed",
+          "growth-nan",
+          "growth-infinite",
+          "growth-empty"
+        ],
+        "deadline_at": "2026-11-17T10:55:33.604713Z",
+        "case_timeout_s": 60.0,
+        "batch_timeout_s": 300.0,
+        "stop_reason": null,
+        "active_case_id": null
+      },
+      {
+        "schema_version": 2,
+        "id": "1fa2049e-ecef-480e-854b-6da0ac592797",
+        "case_set_id": "sprint2-sales-mixed-v1",
+        "case_set_version": "1",
+        "conversation_id": null,
+        "state": "completed",
+        "started_at": "2026-11-17T10:50:33.763296Z",
+        "finished_at": "2026-11-17T10:50:33.852374Z",
+        "outcomes": [
+          {
+            "case_id": "growth-exact",
+            "state": "completed",
+            "run_id": "9cd901e4-5183-492c-ae33-01d7385ae6a6",
+            "result_status": "passed",
+            "reason": "within_tolerance",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": true,
+            "duration_ms": 7
+          },
+          {
+            "case_id": "growth-boundary-pass",
+            "state": "completed",
+            "run_id": "fdb21f1d-6b17-4b57-a29f-defd0bb9351b",
+            "result_status": "passed",
+            "reason": "within_tolerance",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": true,
+            "duration_ms": 7
+          },
+          {
+            "case_id": "growth-boundary-fail",
+            "state": "completed",
+            "run_id": "8bc5d20d-035b-43eb-adfc-7339d9723f66",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 7
+          },
+          {
+            "case_id": "growth-malformed",
+            "state": "completed",
+            "run_id": "d1cf88a4-9e23-4700-8f8a-0e9369f832ca",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 7
+          },
+          {
+            "case_id": "total-exact",
+            "state": "completed",
+            "run_id": "5a53a219-920a-4803-800e-af4d7289aa7b",
+            "result_status": "passed",
+            "reason": "within_tolerance",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": true,
+            "duration_ms": 8
+          },
+          {
+            "case_id": "total-one-cent-error",
+            "state": "completed",
+            "run_id": "fe342a77-225d-443b-9e84-7c9e4dca3d5b",
+            "result_status": "failed",
+            "reason": "outside_tolerance",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": true,
+            "duration_ms": 8
+          },
+          {
+            "case_id": "total-fractional-cent",
+            "state": "completed",
+            "run_id": "ea096827-1661-49a4-8c56-768352b231b1",
+            "result_status": "unverifiable",
+            "reason": "non_integral_claim",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 7
+          },
+          {
+            "case_id": "total-malformed",
+            "state": "completed",
+            "run_id": "9e9a8583-5221-46ba-a1ae-70e27ca6c0ea",
+            "result_status": "unverifiable",
+            "reason": "invalid_claim_value",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": true,
+            "duration_ms": 7
+          }
+        ],
+        "counts": {
+          "attempted": 8,
+          "completed": 8,
+          "passed": 3,
+          "failed": 2,
+          "unverifiable": 3,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0
+        },
+        "case_ids": [
+          "growth-exact",
+          "growth-boundary-pass",
+          "growth-boundary-fail",
+          "growth-malformed",
+          "total-exact",
+          "total-one-cent-error",
+          "total-fractional-cent",
+          "total-malformed"
+        ],
+        "deadline_at": "2026-11-17T10:55:33.763296Z",
+        "case_timeout_s": 60.0,
+        "batch_timeout_s": 300.0,
+        "stop_reason": null,
+        "active_case_id": null
+      },
+      {
+        "schema_version": 2,
+        "id": "a6f72c68-d7bc-43b0-91cf-243b78216800",
+        "case_set_id": "sprint2-sales-mixed-v1",
+        "case_set_version": "1",
+        "conversation_id": null,
+        "state": "timed_out",
+        "started_at": "2026-11-17T10:50:33.863441Z",
+        "finished_at": "2026-11-17T10:50:33.864298Z",
+        "outcomes": [
+          {
+            "case_id": "growth-exact",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "growth-boundary-pass",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "growth-boundary-fail",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "growth-malformed",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "total-exact",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "passed",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "total-one-cent-error",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "failed",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "total-fractional-cent",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": null,
+            "duration_ms": 0
+          },
+          {
+            "case_id": "total-malformed",
+            "state": "skipped",
+            "run_id": null,
+            "result_status": null,
+            "reason": "batch_timeout",
+            "error_type": null,
+            "expected_status": "unverifiable",
+            "matches_expected": null,
+            "duration_ms": 0
+          }
+        ],
+        "counts": {
+          "attempted": 0,
+          "completed": 0,
+          "passed": 0,
+          "failed": 0,
+          "unverifiable": 0,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0,
+          "skipped": 8
+        },
+        "case_ids": [
+          "growth-exact",
+          "growth-boundary-pass",
+          "growth-boundary-fail",
+          "growth-malformed",
+          "total-exact",
+          "total-one-cent-error",
+          "total-fractional-cent",
+          "total-malformed"
+        ],
+        "deadline_at": "2026-11-17T10:50:33.863442Z",
+        "case_timeout_s": 60.0,
+        "batch_timeout_s": 1e-06,
+        "stop_reason": "batch_timeout",
+        "active_case_id": null
+      }
+    ],
+    "runs": {
+      "bf631873-c4f1-4fcc-b05a-315877955086": {
+        "schema_version": 2,
+        "id": "bf631873-c4f1-4fcc-b05a-315877955086",
+        "conversation_id": null,
+        "case_id": "growth-exact",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.612347Z",
+        "finished_at": "2026-11-17T10:50:33.629305Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "d40fd0f4-f6e3-466c-8685-590d3f5f6b44",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 13.5,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.615521Z",
+            "finished_at": "2026-11-17T10:50:33.629005Z",
+            "token_usage": null
+          },
+          {
+            "id": "834e59d4-f7d5-4912-a8e8-8af2353ad647",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.042,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.629153Z",
+            "finished_at": "2026-11-17T10:50:33.629193Z",
+            "token_usage": null
+          },
+          {
+            "id": "da6b19c9-3a19-4f30-a41d-86af495be237",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.104,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.629198Z",
+            "finished_at": "2026-11-17T10:50:33.629301Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "8b5b22bb-2ac4-40d2-a941-f996cbabae05",
+            "run_id": "bf631873-c4f1-4fcc-b05a-315877955086",
+            "step_id": "d40fd0f4-f6e3-466c-8685-590d3f5f6b44",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "8b5b22bb-2ac4-40d2-a941-f996cbabae05",
+          "claimed_value": "10",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "passed",
+          "reason": "within_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10",
+          "difference_pp": "0"
+        }
+      },
+      "c80a5b5c-f6d3-46e4-b950-29d7e4529571": {
+        "schema_version": 2,
+        "id": "c80a5b5c-f6d3-46e4-b950-29d7e4529571",
+        "conversation_id": null,
+        "case_id": "growth-boundary-pass",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.636204Z",
+        "finished_at": "2026-11-17T10:50:33.643620Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "f533a7e8-c120-4c25-99a1-6074ddc70b8c",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 5.288,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.638164Z",
+            "finished_at": "2026-11-17T10:50:33.643448Z",
+            "token_usage": null
+          },
+          {
+            "id": "0244019e-782d-471f-b1db-c71c593de816",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.026,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.643541Z",
+            "finished_at": "2026-11-17T10:50:33.643565Z",
+            "token_usage": null
+          },
+          {
+            "id": "22d74a3d-835a-4159-824a-896e7bc49c0b",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.049,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.643569Z",
+            "finished_at": "2026-11-17T10:50:33.643617Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "fbd78944-90f5-483c-9fe8-f7afad033bb7",
+            "run_id": "c80a5b5c-f6d3-46e4-b950-29d7e4529571",
+            "step_id": "f533a7e8-c120-4c25-99a1-6074ddc70b8c",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "fbd78944-90f5-483c-9fe8-f7afad033bb7",
+          "claimed_value": "10.01",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "passed",
+          "reason": "within_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0.01",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10.01",
+          "difference_pp": "0.01"
+        }
+      },
+      "b79c67ed-7c0f-415d-bb6a-363270428395": {
+        "schema_version": 2,
+        "id": "b79c67ed-7c0f-415d-bb6a-363270428395",
+        "conversation_id": null,
+        "case_id": "growth-boundary-fail",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.649980Z",
+        "finished_at": "2026-11-17T10:50:33.656988Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "9e44da9e-eb1b-41ca-8514-f479799fb6b7",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.825,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.652010Z",
+            "finished_at": "2026-11-17T10:50:33.656831Z",
+            "token_usage": null
+          },
+          {
+            "id": "38351fd0-b340-479b-882a-969800c3a94f",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.023,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.656921Z",
+            "finished_at": "2026-11-17T10:50:33.656943Z",
+            "token_usage": null
+          },
+          {
+            "id": "2a56b2b6-868c-4ad5-b310-61c90936dd09",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.041,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.656946Z",
+            "finished_at": "2026-11-17T10:50:33.656986Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "83e11def-ede2-47e8-a6bb-603a9986ee63",
+            "run_id": "b79c67ed-7c0f-415d-bb6a-363270428395",
+            "step_id": "9e44da9e-eb1b-41ca-8514-f479799fb6b7",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "83e11def-ede2-47e8-a6bb-603a9986ee63",
+          "claimed_value": "10.02",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0.02",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10.02",
+          "difference_pp": "0.02"
+        }
+      },
+      "5e2b1b1a-5bf8-47cb-ae91-2414b4e522fb": {
+        "schema_version": 2,
+        "id": "5e2b1b1a-5bf8-47cb-ae91-2414b4e522fb",
+        "conversation_id": null,
+        "case_id": "growth-wrong",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.663081Z",
+        "finished_at": "2026-11-17T10:50:33.669823Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "200453c7-61cb-4bcf-9d30-248608f1a041",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.748,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.664930Z",
+            "finished_at": "2026-11-17T10:50:33.669675Z",
+            "token_usage": null
+          },
+          {
+            "id": "be0bb183-c0d8-4e4f-ac20-5a3f13adbd3b",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.669764Z",
+            "finished_at": "2026-11-17T10:50:33.669783Z",
+            "token_usage": null
+          },
+          {
+            "id": "bd7392fc-c0f0-4a6c-8057-c4deefd7a0d0",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.035,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.669786Z",
+            "finished_at": "2026-11-17T10:50:33.669820Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "7eb39477-8130-4d1c-84fa-6be0971355a7",
+            "run_id": "5e2b1b1a-5bf8-47cb-ae91-2414b4e522fb",
+            "step_id": "200453c7-61cb-4bcf-9d30-248608f1a041",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "7eb39477-8130-4d1c-84fa-6be0971355a7",
+          "claimed_value": "18.7",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "8.7",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "18.7",
+          "difference_pp": "8.7"
+        }
+      },
+      "eb1786f2-5555-46f9-81e2-b1db3d17915d": {
+        "schema_version": 2,
+        "id": "eb1786f2-5555-46f9-81e2-b1db3d17915d",
+        "conversation_id": null,
+        "case_id": "growth-sign-error",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.675865Z",
+        "finished_at": "2026-11-17T10:50:33.682522Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "7e9e0e53-0201-44fc-b40a-e34f4ca5b158",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.642,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.677746Z",
+            "finished_at": "2026-11-17T10:50:33.682384Z",
+            "token_usage": null
+          },
+          {
+            "id": "8217b68c-c256-40a9-8de3-6621a9c45710",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.682465Z",
+            "finished_at": "2026-11-17T10:50:33.682483Z",
+            "token_usage": null
+          },
+          {
+            "id": "e88fdae8-a195-4bf3-b4d9-36dab856281c",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.034,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.682487Z",
+            "finished_at": "2026-11-17T10:50:33.682520Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "21c654a5-a9b8-43d2-bfa0-eadd4503aa4c",
+            "run_id": "eb1786f2-5555-46f9-81e2-b1db3d17915d",
+            "step_id": "7e9e0e53-0201-44fc-b40a-e34f4ca5b158",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "21c654a5-a9b8-43d2-bfa0-eadd4503aa4c",
+          "claimed_value": "-10",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "20",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "-10",
+          "difference_pp": "20"
+        }
+      },
+      "01c6f508-68b9-4075-a9f5-3955fa4d6961": {
+        "schema_version": 2,
+        "id": "01c6f508-68b9-4075-a9f5-3955fa4d6961",
+        "conversation_id": null,
+        "case_id": "growth-ratio-as-percent",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.688792Z",
+        "finished_at": "2026-11-17T10:50:33.695680Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "cc67ff75-0af5-41aa-b3e1-54877b10c120",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.86,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.690676Z",
+            "finished_at": "2026-11-17T10:50:33.695533Z",
+            "token_usage": null
+          },
+          {
+            "id": "6631a201-f9ec-492d-9032-15ec254ad9b5",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.021,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.695619Z",
+            "finished_at": "2026-11-17T10:50:33.695639Z",
+            "token_usage": null
+          },
+          {
+            "id": "f36ba447-b134-4984-bf1f-6d92359cfb9a",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.037,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.695642Z",
+            "finished_at": "2026-11-17T10:50:33.695678Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "195a3993-112b-42ef-847e-2119161806f2",
+            "run_id": "01c6f508-68b9-4075-a9f5-3955fa4d6961",
+            "step_id": "cc67ff75-0af5-41aa-b3e1-54877b10c120",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "195a3993-112b-42ef-847e-2119161806f2",
+          "claimed_value": "0.1",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "9.9",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "0.1",
+          "difference_pp": "9.9"
+        }
+      },
+      "3a53fa20-889e-4f16-b0c5-8282a2e984e9": {
+        "schema_version": 2,
+        "id": "3a53fa20-889e-4f16-b0c5-8282a2e984e9",
+        "conversation_id": null,
+        "case_id": "growth-malformed",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.701748Z",
+        "finished_at": "2026-11-17T10:50:33.708674Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "c159c588-d919-4172-b9e6-26a773183eda",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.895,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.703629Z",
+            "finished_at": "2026-11-17T10:50:33.708520Z",
+            "token_usage": null
+          },
+          {
+            "id": "d48838e5-b1c8-4d6f-95c6-42916c300a4b",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.708599Z",
+            "finished_at": "2026-11-17T10:50:33.708617Z",
+            "token_usage": null
+          },
+          {
+            "id": "b3d2bc23-8e1d-4168-8a1c-f8ea3df75fa1",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.052,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.708620Z",
+            "finished_at": "2026-11-17T10:50:33.708671Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "4a737049-e069-4ebe-b756-9350893f977c",
+            "run_id": "3a53fa20-889e-4f16-b0c5-8282a2e984e9",
+            "step_id": "c159c588-d919-4172-b9e6-26a773183eda",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "4a737049-e069-4ebe-b756-9350893f977c",
+          "claimed_value": "ten",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": null,
+          "tolerance_pp": "0.01",
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "ten",
+          "difference_pp": null
+        }
+      },
+      "59564811-e4f6-4db5-90e4-e993111f428f": {
+        "schema_version": 2,
+        "id": "59564811-e4f6-4db5-90e4-e993111f428f",
+        "conversation_id": null,
+        "case_id": "growth-nan",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.714759Z",
+        "finished_at": "2026-11-17T10:50:33.721472Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "c4b93e56-b89d-48d5-b4a7-a442d695f186",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.701,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.716622Z",
+            "finished_at": "2026-11-17T10:50:33.721320Z",
+            "token_usage": null
+          },
+          {
+            "id": "f6de1669-46c1-4a03-af91-c8949561358e",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.022,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.721420Z",
+            "finished_at": "2026-11-17T10:50:33.721441Z",
+            "token_usage": null
+          },
+          {
+            "id": "2719655e-13fc-426a-a6ef-cfd66062970c",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.026,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.721444Z",
+            "finished_at": "2026-11-17T10:50:33.721469Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "8c97c5ba-83a8-478f-85b4-fbf76f80d532",
+            "run_id": "59564811-e4f6-4db5-90e4-e993111f428f",
+            "step_id": "c4b93e56-b89d-48d5-b4a7-a442d695f186",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "8c97c5ba-83a8-478f-85b4-fbf76f80d532",
+          "claimed_value": "NaN",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": null,
+          "tolerance_pp": "0.01",
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "NaN",
+          "difference_pp": null
+        }
+      },
+      "d5f2638d-6e4b-48f8-921a-796ca47374b5": {
+        "schema_version": 2,
+        "id": "d5f2638d-6e4b-48f8-921a-796ca47374b5",
+        "conversation_id": null,
+        "case_id": "growth-infinite",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.727404Z",
+        "finished_at": "2026-11-17T10:50:33.734315Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "64a69b37-8862-4845-9735-c510ef34ad2f",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.972,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.729198Z",
+            "finished_at": "2026-11-17T10:50:33.734167Z",
+            "token_usage": null
+          },
+          {
+            "id": "82172513-1beb-4961-a6d9-40980dff40d6",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.734265Z",
+            "finished_at": "2026-11-17T10:50:33.734285Z",
+            "token_usage": null
+          },
+          {
+            "id": "0c90e72a-f9a6-4782-9106-7d8fcebc1fdf",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.025,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.734288Z",
+            "finished_at": "2026-11-17T10:50:33.734312Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "0547ac5a-a7e7-47d6-b3b0-67779334ff98",
+            "run_id": "d5f2638d-6e4b-48f8-921a-796ca47374b5",
+            "step_id": "64a69b37-8862-4845-9735-c510ef34ad2f",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "0547ac5a-a7e7-47d6-b3b0-67779334ff98",
+          "claimed_value": "1e999999",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": null,
+          "tolerance_pp": "0.01",
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "1e999999",
+          "difference_pp": null
+        }
+      },
+      "e05ca401-44e8-4b2a-af8a-4a52b99254dc": {
+        "schema_version": 2,
+        "id": "e05ca401-44e8-4b2a-af8a-4a52b99254dc",
+        "conversation_id": null,
+        "case_id": "growth-empty",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.739489Z",
+        "finished_at": "2026-11-17T10:50:33.746025Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "2b08018e-40ea-40ab-a174-3a058612cbe5",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.967,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.740958Z",
+            "finished_at": "2026-11-17T10:50:33.745922Z",
+            "token_usage": null
+          },
+          {
+            "id": "14df6abe-6191-4d3e-8920-660ba1155915",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.021,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.745976Z",
+            "finished_at": "2026-11-17T10:50:33.745996Z",
+            "token_usage": null
+          },
+          {
+            "id": "9b5aba7f-f2c4-456a-a651-9d93a283496c",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.023,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.746000Z",
+            "finished_at": "2026-11-17T10:50:33.746023Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "8673cd87-272d-43ca-8524-07c6917be623",
+            "run_id": "e05ca401-44e8-4b2a-af8a-4a52b99254dc",
+            "step_id": "2b08018e-40ea-40ab-a174-3a058612cbe5",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "8673cd87-272d-43ca-8524-07c6917be623",
+          "claimed_value": "",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": null,
+          "tolerance_pp": "0.01",
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "",
+          "difference_pp": null
+        }
+      },
+      "9cd901e4-5183-492c-ae33-01d7385ae6a6": {
+        "schema_version": 2,
+        "id": "9cd901e4-5183-492c-ae33-01d7385ae6a6",
+        "conversation_id": null,
+        "case_id": "growth-exact",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.766878Z",
+        "finished_at": "2026-11-17T10:50:33.772743Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "605c5708-593e-4eae-afaa-1948b7b45269",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.274,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.768359Z",
+            "finished_at": "2026-11-17T10:50:33.772630Z",
+            "token_usage": null
+          },
+          {
+            "id": "6fd70eaf-1289-4bbb-8975-2c25a584bf14",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.772684Z",
+            "finished_at": "2026-11-17T10:50:33.772703Z",
+            "token_usage": null
+          },
+          {
+            "id": "1dd70cdb-1f6a-407a-9022-6530dd7e397c",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.034,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.772707Z",
+            "finished_at": "2026-11-17T10:50:33.772740Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "546eddc9-b017-4039-a461-d49834a1c707",
+            "run_id": "9cd901e4-5183-492c-ae33-01d7385ae6a6",
+            "step_id": "605c5708-593e-4eae-afaa-1948b7b45269",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "546eddc9-b017-4039-a461-d49834a1c707",
+          "claimed_value": "10",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "passed",
+          "reason": "within_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10",
+          "difference_pp": "0"
+        }
+      },
+      "fdb21f1d-6b17-4b57-a29f-defd0bb9351b": {
+        "schema_version": 2,
+        "id": "fdb21f1d-6b17-4b57-a29f-defd0bb9351b",
+        "conversation_id": null,
+        "case_id": "growth-boundary-pass",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.777827Z",
+        "finished_at": "2026-11-17T10:50:33.783631Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "f0fbbae3-e913-4150-af8b-e89c38569941",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.24,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.779290Z",
+            "finished_at": "2026-11-17T10:50:33.783527Z",
+            "token_usage": null
+          },
+          {
+            "id": "4648c314-751c-4d90-bbdc-9e4523348873",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.019,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.783579Z",
+            "finished_at": "2026-11-17T10:50:33.783597Z",
+            "token_usage": null
+          },
+          {
+            "id": "7f2f353e-e0c1-47f1-a439-5346833f0ee9",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.029,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.783600Z",
+            "finished_at": "2026-11-17T10:50:33.783629Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "97a67fb6-9fbb-4e46-b354-b5f7257aed24",
+            "run_id": "fdb21f1d-6b17-4b57-a29f-defd0bb9351b",
+            "step_id": "f0fbbae3-e913-4150-af8b-e89c38569941",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "97a67fb6-9fbb-4e46-b354-b5f7257aed24",
+          "claimed_value": "10.01",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "passed",
+          "reason": "within_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0.01",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10.01",
+          "difference_pp": "0.01"
+        }
+      },
+      "8bc5d20d-035b-43eb-adfc-7339d9723f66": {
+        "schema_version": 2,
+        "id": "8bc5d20d-035b-43eb-adfc-7339d9723f66",
+        "conversation_id": null,
+        "case_id": "growth-boundary-fail",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.788453Z",
+        "finished_at": "2026-11-17T10:50:33.794267Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "38c8be32-2d85-40ae-9aef-411f5840f68d",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.192,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.789960Z",
+            "finished_at": "2026-11-17T10:50:33.794148Z",
+            "token_usage": null
+          },
+          {
+            "id": "cdab9149-ad00-48b4-bcd2-f1a0b35ccbe9",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.794200Z",
+            "finished_at": "2026-11-17T10:50:33.794219Z",
+            "token_usage": null
+          },
+          {
+            "id": "a11fcb8e-cc9c-4bd6-bdd1-c26ab23875ec",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.042,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.794223Z",
+            "finished_at": "2026-11-17T10:50:33.794265Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "2050e262-afa0-4c32-9e99-be868dea3775",
+            "run_id": "8bc5d20d-035b-43eb-adfc-7339d9723f66",
+            "step_id": "38c8be32-2d85-40ae-9aef-411f5840f68d",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "2050e262-afa0-4c32-9e99-be868dea3775",
+          "claimed_value": "10.02",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": "0.02",
+          "tolerance_pp": "0.01",
+          "expected_value": "10",
+          "expected_display": "10.00",
+          "claimed_value": "10.02",
+          "difference_pp": "0.02"
+        }
+      },
+      "d1cf88a4-9e23-4700-8f8a-0e9369f832ca": {
+        "schema_version": 2,
+        "id": "d1cf88a4-9e23-4700-8f8a-0e9369f832ca",
+        "conversation_id": null,
+        "case_id": "growth-malformed",
+        "rule_id": "growth_rate",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.799205Z",
+        "finished_at": "2026-11-17T10:50:33.805320Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "3efc5b82-80bc-438e-8be7-c54ddaa9dd9f",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.301,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.800912Z",
+            "finished_at": "2026-11-17T10:50:33.805210Z",
+            "token_usage": null
+          },
+          {
+            "id": "b2b19949-4aa9-4cbd-985a-bab59dc0df21",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.021,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.805272Z",
+            "finished_at": "2026-11-17T10:50:33.805292Z",
+            "token_usage": null
+          },
+          {
+            "id": "ade11fb8-f658-48eb-97e6-94e3772f1fb9",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.023,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.805296Z",
+            "finished_at": "2026-11-17T10:50:33.805318Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "34a7d93a-2e40-45f9-93d5-01f91f8e566e",
+            "run_id": "d1cf88a4-9e23-4700-8f8a-0e9369f832ca",
+            "step_id": "3efc5b82-80bc-438e-8be7-c54ddaa9dd9f",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year IN (2024, 2025)\nGROUP BY store_id, year, currency ORDER BY year LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2024,
+                "currency": "CNY",
+                "amount_cents": 10000
+              },
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "34a7d93a-2e40-45f9-93d5-01f91f8e566e",
+          "claimed_value": "ten",
+          "unit": "percent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "growth_rate-v2",
+          "unit": "percent",
+          "tolerance": "0.01",
+          "difference": null,
+          "tolerance_pp": "0.01",
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "ten",
+          "difference_pp": null
+        }
+      },
+      "5a53a219-920a-4803-800e-af4d7289aa7b": {
+        "schema_version": 2,
+        "id": "5a53a219-920a-4803-800e-af4d7289aa7b",
+        "conversation_id": null,
+        "case_id": "total-exact",
+        "rule_id": "sales_total",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.810294Z",
+        "finished_at": "2026-11-17T10:50:33.816486Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "3c4bf531-b2b3-4d3b-96a9-eb7032cf4115",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.272,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.812085Z",
+            "finished_at": "2026-11-17T10:50:33.816354Z",
+            "token_usage": null
+          },
+          {
+            "id": "e8a43b8a-89ef-40d2-a226-33c71ad8bca2",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.022,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.816409Z",
+            "finished_at": "2026-11-17T10:50:33.816431Z",
+            "token_usage": null
+          },
+          {
+            "id": "9919131d-aec4-43a6-a8e8-f15196598274",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.05,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.816435Z",
+            "finished_at": "2026-11-17T10:50:33.816484Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "8fea2493-856a-4754-9d3c-36b638c902ae",
+            "run_id": "5a53a219-920a-4803-800e-af4d7289aa7b",
+            "step_id": "3c4bf531-b2b3-4d3b-96a9-eb7032cf4115",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year = 2025\nGROUP BY store_id, year, currency LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "8fea2493-856a-4754-9d3c-36b638c902ae",
+          "claimed_value": "11000",
+          "unit": "CNY_cent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025,
+          "year": 2025
+        },
+        "result": {
+          "status": "passed",
+          "reason": "within_tolerance",
+          "rule_version": "sales_total-v1",
+          "unit": "CNY_cent",
+          "tolerance": "0",
+          "difference": "0",
+          "tolerance_pp": null,
+          "expected_value": "11000",
+          "expected_display": "11000",
+          "claimed_value": "11000",
+          "difference_pp": null
+        }
+      },
+      "fe342a77-225d-443b-9e84-7c9e4dca3d5b": {
+        "schema_version": 2,
+        "id": "fe342a77-225d-443b-9e84-7c9e4dca3d5b",
+        "conversation_id": null,
+        "case_id": "total-one-cent-error",
+        "rule_id": "sales_total",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.821521Z",
+        "finished_at": "2026-11-17T10:50:33.827566Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "f1be5e45-3a36-455a-9802-e21e13c79e53",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.295,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.823144Z",
+            "finished_at": "2026-11-17T10:50:33.827436Z",
+            "token_usage": null
+          },
+          {
+            "id": "a696d209-5228-4277-8fcd-c00ec6070b1f",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.024,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.827503Z",
+            "finished_at": "2026-11-17T10:50:33.827525Z",
+            "token_usage": null
+          },
+          {
+            "id": "0ed5cdc6-3e94-42a5-a71d-67e69d34008e",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.035,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.827530Z",
+            "finished_at": "2026-11-17T10:50:33.827564Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "84bc60fb-da42-490f-a5cc-e1a4b992d62f",
+            "run_id": "fe342a77-225d-443b-9e84-7c9e4dca3d5b",
+            "step_id": "f1be5e45-3a36-455a-9802-e21e13c79e53",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year = 2025\nGROUP BY store_id, year, currency LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "84bc60fb-da42-490f-a5cc-e1a4b992d62f",
+          "claimed_value": "11001",
+          "unit": "CNY_cent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025,
+          "year": 2025
+        },
+        "result": {
+          "status": "failed",
+          "reason": "outside_tolerance",
+          "rule_version": "sales_total-v1",
+          "unit": "CNY_cent",
+          "tolerance": "0",
+          "difference": "1",
+          "tolerance_pp": null,
+          "expected_value": "11000",
+          "expected_display": "11000",
+          "claimed_value": "11001",
+          "difference_pp": null
+        }
+      },
+      "ea096827-1661-49a4-8c56-768352b231b1": {
+        "schema_version": 2,
+        "id": "ea096827-1661-49a4-8c56-768352b231b1",
+        "conversation_id": null,
+        "case_id": "total-fractional-cent",
+        "rule_id": "sales_total",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.832568Z",
+        "finished_at": "2026-11-17T10:50:33.838498Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "fe6c3703-f8ed-4dbb-bf87-67539462152c",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.436,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.833970Z",
+            "finished_at": "2026-11-17T10:50:33.838402Z",
+            "token_usage": null
+          },
+          {
+            "id": "f1e710b8-a70f-44b3-bd8e-0b7a5e5b2b24",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.838453Z",
+            "finished_at": "2026-11-17T10:50:33.838472Z",
+            "token_usage": null
+          },
+          {
+            "id": "294bc824-72d8-4a71-b2d4-36fdd4107cbc",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.021,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.838476Z",
+            "finished_at": "2026-11-17T10:50:33.838496Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "d69d2a44-bcc7-4f55-87ff-ffae6223837e",
+            "run_id": "ea096827-1661-49a4-8c56-768352b231b1",
+            "step_id": "fe6c3703-f8ed-4dbb-bf87-67539462152c",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year = 2025\nGROUP BY store_id, year, currency LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "d69d2a44-bcc7-4f55-87ff-ffae6223837e",
+          "claimed_value": "11000.1",
+          "unit": "CNY_cent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025,
+          "year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "non_integral_claim",
+          "rule_version": "sales_total-v1",
+          "unit": "CNY_cent",
+          "tolerance": "0",
+          "difference": null,
+          "tolerance_pp": null,
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "11000.1",
+          "difference_pp": null
+        }
+      },
+      "9e9a8583-5221-46ba-a1ae-70e27ca6c0ea": {
+        "schema_version": 2,
+        "id": "9e9a8583-5221-46ba-a1ae-70e27ca6c0ea",
+        "conversation_id": null,
+        "case_id": "total-malformed",
+        "rule_id": "sales_total",
+        "dataset_version": "sales-v1",
+        "source": "test_injected",
+        "started_at": "2026-11-17T10:50:33.843156Z",
+        "finished_at": "2026-11-17T10:50:33.849005Z",
+        "state": "completed",
+        "model": null,
+        "answer": null,
+        "answer_truncated": false,
+        "steps": [
+          {
+            "id": "1f4370d0-8f5e-4752-af6f-6e019d1c18fe",
+            "kind": "query",
+            "status": "completed",
+            "duration_ms": 4.115,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.844794Z",
+            "finished_at": "2026-11-17T10:50:33.848906Z",
+            "token_usage": null
+          },
+          {
+            "id": "10031df4-4a9e-4c04-bdc0-c72f8c7f2288",
+            "kind": "claim",
+            "status": "completed",
+            "duration_ms": 0.02,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.848960Z",
+            "finished_at": "2026-11-17T10:50:33.848979Z",
+            "token_usage": null
+          },
+          {
+            "id": "305a9016-ded4-4e97-b997-bf6ac98ae2c4",
+            "kind": "validation",
+            "status": "completed",
+            "duration_ms": 0.021,
+            "error": null,
+            "parent_step_id": null,
+            "started_at": "2026-11-17T10:50:33.848983Z",
+            "finished_at": "2026-11-17T10:50:33.849003Z",
+            "token_usage": null
+          }
+        ],
+        "evidence": [
+          {
+            "id": "404b01f9-695e-49dc-8546-84e0a884d952",
+            "run_id": "9e9a8583-5221-46ba-a1ae-70e27ca6c0ea",
+            "step_id": "1f4370d0-8f5e-4752-af6f-6e019d1c18fe",
+            "sql": "SELECT store_id, year, currency, SUM(amount_cents) AS amount_cents\nFROM sales_records\nWHERE store_id = 'demo-store' AND currency = 'CNY' AND year = 2025\nGROUP BY store_id, year, currency LIMIT 10",
+            "columns": [
+              "store_id",
+              "year",
+              "currency",
+              "amount_cents"
+            ],
+            "rows": [
+              {
+                "store_id": "demo-store",
+                "year": 2025,
+                "currency": "CNY",
+                "amount_cents": 11000
+              }
+            ],
+            "truncated": false,
+            "dataset_version": "sales-v1",
+            "amount_unit": "CNY_cent"
+          }
+        ],
+        "claim": {
+          "evidence_id": "404b01f9-695e-49dc-8546-84e0a884d952",
+          "claimed_value": "eleven thousand",
+          "unit": "CNY_cent",
+          "store_id": "demo-store",
+          "previous_year": 2024,
+          "current_year": 2025,
+          "year": 2025
+        },
+        "result": {
+          "status": "unverifiable",
+          "reason": "invalid_claim_value",
+          "rule_version": "sales_total-v1",
+          "unit": "CNY_cent",
+          "tolerance": "0",
+          "difference": null,
+          "tolerance_pp": null,
+          "expected_value": null,
+          "expected_display": null,
+          "claimed_value": "eleven thousand",
+          "difference_pp": null
+        }
+      }
+    }
+  },
+  "restart_verification": {
+    "verified_at": "2026-11-17T10:51:15.356023+00:00",
+    "source": "test_injected",
+    "live_model_called": false,
+    "normal_reports": 18,
+    "all_18_reports_equal_after_process_restart": true,
+    "all_3_batches_equal_after_process_restart": true,
+    "canonical_payload_sha256": "7504f54d4b67ac2df55334e618b6279876ca806063d1f3226e0782b63a2d347a",
+    "batches": [
+      {
+        "id": "dad2a2e6-ca36-4b3e-9851-f339a147157d",
+        "case_set_id": "sprint2-sales-v1",
+        "state": "completed",
+        "counts": {
+          "attempted": 10,
+          "completed": 10,
+          "passed": 2,
+          "failed": 4,
+          "unverifiable": 4,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0
+        }
+      },
+      {
+        "id": "1fa2049e-ecef-480e-854b-6da0ac592797",
+        "case_set_id": "sprint2-sales-mixed-v1",
+        "state": "completed",
+        "counts": {
+          "attempted": 8,
+          "completed": 8,
+          "passed": 3,
+          "failed": 2,
+          "unverifiable": 3,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0
+        }
+      },
+      {
+        "id": "a6f72c68-d7bc-43b0-91cf-243b78216800",
+        "case_set_id": "sprint2-sales-mixed-v1",
+        "state": "timed_out",
+        "counts": {
+          "attempted": 0,
+          "completed": 0,
+          "passed": 0,
+          "failed": 0,
+          "unverifiable": 0,
+          "tool_error": 0,
+          "timeout": 0,
+          "error": 0,
+          "skipped": 8
+        }
+      }
+    ],
+    "reports": [
+      {
+        "id": "bf631873-c4f1-4fcc-b05a-315877955086",
+        "case_id": "growth-exact",
+        "rule_id": "growth_rate",
+        "result": "passed",
+        "sha256": "d52809a3feca6a2a943d8cbd3655f7b2b7bda32e37ad6ed95ae6dcb6690737b1"
+      },
+      {
+        "id": "c80a5b5c-f6d3-46e4-b950-29d7e4529571",
+        "case_id": "growth-boundary-pass",
+        "rule_id": "growth_rate",
+        "result": "passed",
+        "sha256": "e61e5caa7ac6cde591c9c3efc34271d6d4003a59b3ba1f3b407f060280870a61"
+      },
+      {
+        "id": "b79c67ed-7c0f-415d-bb6a-363270428395",
+        "case_id": "growth-boundary-fail",
+        "rule_id": "growth_rate",
+        "result": "failed",
+        "sha256": "b014a521955c0551bbd83b8fa37e0dc037cc30acb783db7c071946104638d96f"
+      },
+      {
+        "id": "5e2b1b1a-5bf8-47cb-ae91-2414b4e522fb",
+        "case_id": "growth-wrong",
+        "rule_id": "growth_rate",
+        "result": "failed",
+        "sha256": "3efc811e97a52cdd8dbe4fa8d2ca4c2231a60f72c478329092dd6e9113997d9d"
+      },
+      {
+        "id": "eb1786f2-5555-46f9-81e2-b1db3d17915d",
+        "case_id": "growth-sign-error",
+        "rule_id": "growth_rate",
+        "result": "failed",
+        "sha256": "32f479efc1fd8b37698b2211ac3eac153e6473bb1c120a2ebd070ee604b6b354"
+      },
+      {
+        "id": "01c6f508-68b9-4075-a9f5-3955fa4d6961",
+        "case_id": "growth-ratio-as-percent",
+        "rule_id": "growth_rate",
+        "result": "failed",
+        "sha256": "173c9511d51669c9fd536238363cf8e0a0514d265a15f001b651ba1d235fae76"
+      },
+      {
+        "id": "3a53fa20-889e-4f16-b0c5-8282a2e984e9",
+        "case_id": "growth-malformed",
+        "rule_id": "growth_rate",
+        "result": "unverifiable",
+        "sha256": "0c79fbc057f31058f8167c6fee3490bb4a5de22346e89747f702f7f1dea3b901"
+      },
+      {
+        "id": "59564811-e4f6-4db5-90e4-e993111f428f",
+        "case_id": "growth-nan",
+        "rule_id": "growth_rate",
+        "result": "unverifiable",
+        "sha256": "e0be64df743342db487307350f2d258114246a8585cf0354c4b6216f558ffaf8"
+      },
+      {
+        "id": "d5f2638d-6e4b-48f8-921a-796ca47374b5",
+        "case_id": "growth-infinite",
+        "rule_id": "growth_rate",
+        "result": "unverifiable",
+        "sha256": "eb623ddbc268dc836c723bed05a4bf699d8c588432d013c65cfd1ecca2748b4f"
+      },
+      {
+        "id": "e05ca401-44e8-4b2a-af8a-4a52b99254dc",
+        "case_id": "growth-empty",
+        "rule_id": "growth_rate",
+        "result": "unverifiable",
+        "sha256": "60f83503438c73b31bac6bd38ea6fa2d3190e62b0568342cc2835e3cab178723"
+      },
+      {
+        "id": "9cd901e4-5183-492c-ae33-01d7385ae6a6",
+        "case_id": "growth-exact",
+        "rule_id": "growth_rate",
+        "result": "passed",
+        "sha256": "5b1f2e8b0df61c15d61e52e11ba7d74e45ae5a065a49f85f605d0a552559a512"
+      },
+      {
+        "id": "fdb21f1d-6b17-4b57-a29f-defd0bb9351b",
+        "case_id": "growth-boundary-pass",
+        "rule_id": "growth_rate",
+        "result": "passed",
+        "sha256": "b4ba68e5ea40ad0255f610434c4bd520e6b545df5919dbac2ff6c501900490f9"
+      },
+      {
+        "id": "8bc5d20d-035b-43eb-adfc-7339d9723f66",
+        "case_id": "growth-boundary-fail",
+        "rule_id": "growth_rate",
+        "result": "failed",
+        "sha256": "12f1c3d0bdbf679f1d812fc08d5b29e8937b62250fe62f31fac5977361ab6c62"
+      },
+      {
+        "id": "d1cf88a4-9e23-4700-8f8a-0e9369f832ca",
+        "case_id": "growth-malformed",
+        "rule_id": "growth_rate",
+        "result": "unverifiable",
+        "sha256": "385c704714b09188218918f798164e605af23d2d8d78a851d059f47c9fcac1fa"
+      },
+      {
+        "id": "5a53a219-920a-4803-800e-af4d7289aa7b",
+        "case_id": "total-exact",
+        "rule_id": "sales_total",
+        "result": "passed",
+        "sha256": "9c705d0d1b6d86fd03985233d2cdd5562d1eea9f4ef1e8f87cf3fba9b8859406"
+      },
+      {
+        "id": "fe342a77-225d-443b-9e84-7c9e4dca3d5b",
+        "case_id": "total-one-cent-error",
+        "rule_id": "sales_total",
+        "result": "failed",
+        "sha256": "b6f2e7dceb1aa8171242c850f09727d7885536a56fb0f456fbdf0f2de3dd6d1f"
+      },
+      {
+        "id": "ea096827-1661-49a4-8c56-768352b231b1",
+        "case_id": "total-fractional-cent",
+        "rule_id": "sales_total",
+        "result": "unverifiable",
+        "sha256": "34d1a72f9acd6d493b186b457914c0c8da96cd61e262762bb88ed59e2d01cf00"
+      },
+      {
+        "id": "9e9a8583-5221-46ba-a1ae-70e27ca6c0ea",
+        "case_id": "total-malformed",
+        "rule_id": "sales_total",
+        "result": "unverifiable",
+        "sha256": "8474fb41ec81f29266662e7ae2ac6ae879ee2400e71b6ba5971c5360647b6ea3"
+      }
+    ]
+  },
+  "server_processes": [
+    5658,
+    5693
+  ],
+  "log_sha256": {
+    "backend-final.log": "c3b2d5fa60fdfd630fa9b658190abc9476b56676f0df59602ef5fb5289c010d8",
+    "frontend-test.log": "8d5a937aaae2c1782d1e5a79fdd87340e52bd980a6c1e72bfd36cb2fde046f09",
+    "frontend-build.log": "32979d639c693431018c0896a475afe3e8ca6c48005f35c70995a81f84a45e23",
+    "frontend-lint.log": "bad4e11d3cba8549653b72175decc48545cd50be52718832aafeb54a1f391333",
+    "browser-integrated.log": "0b4ccf6975efcbdae17c53e5e91cc01cc8f600de7b60325c1a27c1390d3c4775",
+    "ruff-check.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff-format.log": "291d91fd4256e9a8b5d743c5c5fcb04dfee353294a3741d1ec385150e1711bf6",
+    "mypy.log": "8707af011cac965901023609ab97de11c08f549edf305f8304cbb0121d700dbd",
+    "bootstrap-main.log": "c49b47bea1a360c05bfae64f338855d78df0ae68ce4280a7170f14cd558459b6"
+  },
+  "limits": [
+    "Fixed synthetic sales-v1 only; no real-provider call in this execution.",
+    "Normal successful reports were restarted after terminal save; this does not prove crash recovery of uncommitted work.",
+    "Fault-injected cleanup and cancellation are validated by backend regression tests, not inferred from ordinary HTTP runs.",
+    "Windows unit/benchmark CI is separate from complete native Windows application acceptance.",
+    "Historical trace overhead measurements were not rerun."
+  ]
+}
