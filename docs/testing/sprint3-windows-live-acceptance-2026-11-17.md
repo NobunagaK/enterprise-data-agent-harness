@@ -89,6 +89,21 @@ the response. The valid model was restored immediately afterwards.
   (both `query_fails=False/True`) → **2 passed** on Windows; directory count
   unchanged.
 
+## Sprint 3 acceptance matrix
+
+| Requirement | Evidence in this record | Status |
+|---|---|---|
+| Native Windows install, bootstrap, start | Fresh `uv sync` + `pnpm` + build; migrations 001→007; Uvicorn on 8100 | Passed |
+| Operate the UI for both rules and mixed batches | Growth 2/4/4; mixed 3/2/3; single total 11001 failed; 0 console errors | Passed |
+| SQL/evidence/trace inspection | One-cent card and trace screenshots; query/claim/validation steps | Passed |
+| History after restart | 2/2 batches + 18/18 batch runs equal; 19 runs readable; UI history | Passed |
+| Real provider through app/API | Growth and sales-total `agent_generated` passed; UI model card; 8 steps | Passed |
+| Persisted live reports | Both API reports full JSON equal after restart | Passed |
+| Failure handling | Invalid model → `tool_error/model_error`; no key leak; model restored | Passed |
+| Windows cleanup (#11) | 20 queries, no new `harness-sales-*` dirs; cleanup test 2/2 | Passed |
+| Independent reproduction (#12) | Not performed by another member in this run | Pending |
+| Demo video | 66.4 s local MP4 from the accepted commit | Recorded |
+
 ## Limits
 
 - Fixed synthetic `sales-v1` data only; no customer data and no arbitrary SQL.
