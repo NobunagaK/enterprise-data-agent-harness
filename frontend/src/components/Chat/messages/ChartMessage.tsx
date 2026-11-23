@@ -10,7 +10,6 @@ interface Props {
 
 /** Minimal slice of the Vega view API this component uses. */
 interface VegaView {
-  finalize: () => void;
   toImageURL: (type: string, scale?: number) => Promise<string>;
 }
 
@@ -20,6 +19,8 @@ export function ChartMessage({ payload, onRenderError }: Props) {
   // view keeps its RAF loop and listeners alive; once the message list is
   // virtualized and unmounts off-screen charts, leaking them defeats the point.
   const viewRef = useRef<VegaView | null>(null);
+  const errorHandler = useRef(onRenderError);
+  useEffect(() => { errorHandler.current = onRenderError; }, [onRenderError]);
   const [embedError, setEmbedError] = useState<string | null>(null);
   // Gate the download button on a rendered view (viewRef is a ref, not reactive).
   const [ready, setReady] = useState(false);
@@ -30,6 +31,9 @@ export function ChartMessage({ payload, onRenderError }: Props) {
     setReady(false);
 
     const container = containerRef.current;
+    const target = container.appendChild(document.createElement("div"));
+    let disposed = false;
+    let finalize: (() => void) | undefined;
 
     const embed = (width: number) => {
       const spec = {
@@ -38,21 +42,27 @@ export function ChartMessage({ payload, onRenderError }: Props) {
         autosize: { type: "fit-x", contains: "padding" },
       } as never;
 
-      vegaEmbed(container, spec, {
+      vegaEmbed(target, spec, {
         mode: "vega-lite",
         renderer: "svg",
         actions: { export: true, editor: false, source: false },
         tooltip: { theme: "custom" },
       })
         .then((result) => {
+          if (disposed) {
+            result.finalize();
+            return;
+          }
+          finalize = result.finalize;
           viewRef.current = result.view;
           setReady(true);
         })
         .catch((err) => {
+          if (disposed) return;
           console.error("Vega-Lite render error:", err);
           const msg = String(err?.message || err);
           setEmbedError(msg);
-          onRenderError?.(msg);
+          errorHandler.current?.(msg);
         });
     };
 
@@ -73,8 +83,10 @@ export function ChartMessage({ payload, onRenderError }: Props) {
     }
 
     return () => {
+      disposed = true;
       observer.disconnect();
-      viewRef.current?.finalize();
+      finalize?.();
+      target.remove();
       viewRef.current = null;
     };
   }, [payload.vega_lite_spec]);
@@ -121,9 +133,9 @@ export function ChartMessage({ payload, onRenderError }: Props) {
               </button>
             </div>
           )}
-          <div ref={containerRef} className="w-full" />
         </>
       )}
+      <div ref={containerRef} className="w-full" hidden={!!embedError} />
       {payload.reasoning && (
         <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
           {payload.reasoning}

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from "react"
 import { Send, Database } from "lucide-react";
 import { useConversationsStore } from "@/store/conversations";
 import { useDisplayStore, GREETING_TTL_MS } from "@/store/display";
-import { createConversation } from "@/api/conversations";
 import { STARTER_PROMPTS } from "@/lib/starterPrompts";
 
 async function fetchDataHubUser(): Promise<string> {
@@ -56,32 +55,23 @@ interface Props {
 
 export function WelcomeView({ onSend }: Props) {
   const { engines } = useConversationsStore();
-  const { appName, logoUrl } = useDisplayStore();
+  const { logoUrl, greeting, greetingGeneratedAt, setGreeting } = useDisplayStore();
   const [text, setText] = useState("");
   const [placeholder, ...suggestions] = useMemo(() => pickSuggestions(5), []);
-  const [engine, setEngine] = useState(engines[0]?.name ?? "");
-  const { greeting: cachedGreeting, userName: cachedUser, greetingGeneratedAt, setGreeting: storeGreeting } = useDisplayStore();
+  const [selectedEngine, setEngine] = useState("");
+  const engine = engines.some(e => e.name === selectedEngine) ? selectedEngine : engines[0]?.name ?? "";
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Use cached values from store; only call APIs once per session
-  const userName = cachedUser;
-  const greeting = cachedGreeting;
-
-  useEffect(() => {
-    if (!engine && engines.length > 0) setEngine(engines[0].name);
-  }, [engines]);
 
   useEffect(() => {
     const stale = Date.now() - greetingGeneratedAt > GREETING_TTL_MS;
-    if ((cachedGreeting && !stale) || _greetingFetchInFlight) return;
+    if ((greeting && !stale) || _greetingFetchInFlight) return;
     _greetingFetchInFlight = true;
-    fetchDataHubUser().then((name) => {
-      fetchLlmGreeting(name).then((g) => {
-        storeGreeting(g, name);
-        _greetingFetchInFlight = false;
-      });
+    fetchDataHubUser().then(async (name) => {
+      setGreeting((await fetchLlmGreeting(name)) || getGreeting(), name);
+    }).finally(() => {
+      _greetingFetchInFlight = false;
     });
-  }, []);
+  }, [greeting, greetingGeneratedAt, setGreeting]);
 
   const handleSend = () => {
     const trimmed = text.trim();

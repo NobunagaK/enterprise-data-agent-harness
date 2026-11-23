@@ -22,7 +22,30 @@ jobs:
           uv run ruff check scripts/audit_harness_reports.py
           uv run ruff format --check scripts/audit_harness_reports.py
           uv run pytest tests/unit/test_harness_audit.py -q
-      - run: uv run pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py tests/unit/test_harness_verification.py tests/unit/test_harness_trace.py tests/unit/test_harness_mixed_cases.py -q
+      - name: Run Windows Harness regressions and record cleanup evidence
+        id: lifecycle
+        run: |
+          git rev-parse HEAD
+          uv run --frozen python -c "import platform; print(platform.platform(), platform.python_version())"
+          uv run --frozen pytest tests/unit/test_harness.py tests/unit/test_harness_contracts.py tests/unit/test_harness_batch.py tests/unit/test_harness_batch_lifecycle.py tests/unit/test_harness_verification.py tests/unit/test_harness_trace.py tests/unit/test_harness_mixed_cases.py -q -o junit_family=xunit1 --junitxml="$env:RUNNER_TEMP/windows-harness.xml"
+      - name: Print cleanup inventories in the job log
+        if: ${{ !cancelled() && steps.lifecycle.outcome != 'skipped' }}
+        shell: uv run --frozen python {0}
+        run: |
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          results = ET.parse(Path(os.environ['RUNNER_TEMP']) / 'windows-harness.xml')
+          for case in results.iter('testcase'):
+              if case.get('name', '').startswith('test_query_closes_connection_and_removes_temp_artifacts['):
+                  print(case.get('name'), {p.get('name'): p.get('value') for p in case.findall('properties/property')})
+      - name: Upload Windows test results with per-query fixture inventories
+        if: ${{ !cancelled() && steps.lifecycle.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-harness-${{ github.sha }}
+          path: ${{ runner.temp }}/windows-harness.xml
 
   # ── Python backend ──────────────────────────────────────────────────────────
   backend-lint:

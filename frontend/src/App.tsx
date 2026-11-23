@@ -76,7 +76,7 @@ export default function App() {
         .then((s) => setShowOnboarding(!s.has_key))
         .catch(() => setShowOnboarding(false));
     }
-  }, []);
+  }, [setConversations, setEngines, setDisplay]);
 
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">

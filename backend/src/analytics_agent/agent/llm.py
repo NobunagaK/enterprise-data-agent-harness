@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -140,6 +141,10 @@ _FACTORIES: dict[str, Callable[[str, bool], BaseChatModel]] = {
 
 
 def _make_llm(model: str, streaming: bool = False) -> BaseChatModel:
+    # Mock chat streams its own events. Ancillary requests (greeting, title,
+    # etc.) use their normal unavailable-model fallback in this mode.
+    if os.environ.get("MOCK_LLM") == "1":
+        raise ValueError("External model is disabled in MOCK_LLM mode")
     factory = _FACTORIES.get(settings.llm_provider)
     if factory is None:
         raise ValueError(

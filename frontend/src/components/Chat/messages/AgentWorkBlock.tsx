@@ -25,9 +25,8 @@ export function AgentWorkBlock({
 }: Props) {
   const [expanded, setExpanded] = useState(isStreaming);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const startRef = useRef<number>(Date.now());
+  const startRef = useRef<number | null>(null);
   const [liveElapsed, setLiveElapsed] = useState(0);
-  const frozenElapsed = useRef<number | null>(null);
 
   // Compute elapsed from timestamps for completed turns (loaded from DB)
   const tsElapsed = useMemo(() => {
@@ -58,17 +57,17 @@ export function AgentWorkBlock({
   // Live timer while streaming
   useEffect(() => {
     if (!isStreaming) {
-      // Only freeze if streaming actually ran (liveElapsed > 0).
-      // Without this guard, history-loaded turns (never streamed) set
-      // frozenElapsed to ~0 and the ?? fallback to tsElapsed is skipped.
-      if (frozenElapsed.current === null && liveElapsed > 0) {
-        frozenElapsed.current = Math.round((Date.now() - startRef.current) / 1000);
+      if (startRef.current !== null) {
+        setLiveElapsed(Math.round((Date.now() - startRef.current) / 1000));
+        startRef.current = null;
       }
       return;
     }
-    startRef.current = Date.now();
+    const startedAt = Date.now();
+    startRef.current = startedAt;
+    setLiveElapsed(0);
     const iv = setInterval(() => {
-      setLiveElapsed(Math.round((Date.now() - startRef.current) / 1000));
+      setLiveElapsed(Math.round((Date.now() - startedAt) / 1000));
     }, 1000);
     return () => clearInterval(iv);
   }, [isStreaming]);
@@ -90,9 +89,7 @@ export function AgentWorkBlock({
     }
   }, [workMessages.length, isStreaming]);
 
-  const elapsedSeconds = isStreaming
-    ? liveElapsed
-    : (frozenElapsed.current ?? (liveElapsed > 0 ? liveElapsed : tsElapsed));
+  const elapsedSeconds = liveElapsed || tsElapsed;
 
   const toolCallCount = workMessages.filter((m) => m.event_type === "TOOL_CALL").length;
 

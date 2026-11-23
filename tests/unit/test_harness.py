@@ -319,8 +319,10 @@ def test_fractional_cent_is_unverifiable(amount):
     assert result.reason == "non_integral_amount"
 
 
-@pytest.mark.parametrize("query_fails", [False, True])
-def test_query_closes_connection_and_removes_temp_artifacts(tmp_path, monkeypatch, query_fails):
+@pytest.mark.parametrize("query_fails", [False, True], ids=["successful_sql", "injected_sql_error"])
+def test_query_closes_connection_and_removes_temp_artifacts(
+    tmp_path, monkeypatch, query_fails, record_property
+):
     import sqlite3
     import tempfile
 
@@ -328,28 +330,39 @@ def test_query_closes_connection_and_removes_temp_artifacts(tmp_path, monkeypatc
     original_connect = sqlite3.connect
     original_directory = tempfile.TemporaryDirectory
 
+    def inventory():
+        return sorted(entry.name for entry in tmp_path.iterdir())
+
+    def create_directory(**kwargs):
+        directory = original_directory(dir=tmp_path, **kwargs)
+        record_property("created", json.dumps(inventory()))
+        return directory
+
     def connect(*args, **kwargs):
         conn = original_connect(*args, **kwargs)
         connections.append(conn)
         return conn
 
     monkeypatch.setattr(runner.sqlite3, "connect", connect)
-    monkeypatch.setattr(
-        runner.tempfile, "TemporaryDirectory", lambda **kw: original_directory(dir=tmp_path, **kw)
-    )
-    if query_fails:
-        monkeypatch.setattr(
-            runner.SQLAlchemyQueryEngine, "_run_query", lambda *a, **kw: {"error": "failure"}
-        )
-        with pytest.raises(RuntimeError):
+    monkeypatch.setattr(runner.tempfile, "TemporaryDirectory", create_directory)
+    record_property("before", json.dumps(inventory()))
+    try:
+        if query_fails:
+            monkeypatch.setattr(
+                runner.SQLAlchemyQueryEngine, "_run_query", lambda *a, **kw: {"error": "failure"}
+            )
+            with pytest.raises(RuntimeError, match="query_failed"):
+                runner.query_sales(Run(source="test_injected"))
+        else:
             runner.query_sales(Run(source="test_injected"))
-    else:
-        runner.query_sales(Run(source="test_injected"))
+    finally:
+        after = inventory()
+        record_property("after", json.dumps(after))
     assert connections
     for conn in connections:
         with pytest.raises(sqlite3.ProgrammingError, match="closed"):
             conn.execute("SELECT 1")
-    assert list(tmp_path.iterdir()) == []
+    assert after == []
 
 
 @pytest.mark.parametrize(
