@@ -286,7 +286,7 @@ export function HarnessBatchPanel({ conversationId }: { conversationId: string |
           {batches.length > 1 && (
             <div className="mt-3 space-y-1 text-xs">
               <p className="text-muted-foreground">历史批次</p>
-              {batches.slice(1).map(batch => (
+              {batches.filter(batch => batch.id !== selected?.id).map(batch => (
                 <button
                   key={batch.id}
                   className="block underline"

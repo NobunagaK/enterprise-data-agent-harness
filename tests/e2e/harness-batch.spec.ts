@@ -74,6 +74,35 @@ test("mixed rules can be selected and retain SQL, source and history after reloa
   await expect(page.getByText(/批次 .+ · completed · sprint2-sales-mixed-v1 v1/)).toBeVisible();
 });
 
+test("batch history can return to the newest batch after opening an older one", async ({ page, request }) => {
+  const conversation = await request.post("/api/conversations", {
+    data: { title: "Batch history navigation", engine_name: "" },
+  });
+  expect(conversation.status()).toBe(201);
+  const { id } = await conversation.json();
+  try {
+    for (const caseSet of ["sprint2-sales-v1", "sprint2-sales-mixed-v1"]) {
+      const batch = await request.post("/api/harness/batches", {
+        data: { case_set_id: caseSet, conversation_id: id },
+      });
+      expect(batch.status()).toBe(201);
+    }
+
+    await page.goto("/");
+    await page.locator(`[data-conv-id="${id}"]`).click();
+    await page.getByText("批量评测 · Sprint 2", { exact: true }).click();
+    await expect(page.getByText("完成 8/8", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: /sprint2-sales-v1 v1 · completed/ }).click();
+    await expect(page.getByText("完成 10/10", { exact: true })).toBeVisible();
+    const newest = page.getByRole("button", { name: /sprint2-sales-mixed-v1 v1 · completed/ });
+    await expect(newest).toBeVisible();
+    await newest.click();
+    await expect(page.getByText("完成 8/8", { exact: true })).toBeVisible();
+  } finally {
+    await request.delete(`/api/conversations/${id}`);
+  }
+});
+
 test("catalog failure disables new execution while preserving history access", async ({ page, request }) => {
   const batch = await request.post("/api/harness/batches", {
     data: { case_set_id: "sprint2-sales-mixed-v1" },

@@ -31,9 +31,35 @@ Analytics Agent connects to your data warehouse and answers questions in plain E
 
 ---
 
-## ⚡ Quickstart
+## Run the course Harness from source
 
-### Option A — pip / uvx (recommended, no Docker needed)
+Use Git, uv, Python 3.12, Node 22.13+ within the 22.x series or Node 24, and pnpm 10 or 11. In a new Windows PowerShell window, run the commands from a directory where you want to keep the project. The database path stays inside the checkout so you can reopen the same reports after a restart.
+
+```powershell
+git clone https://github.com/NobunagaK/enterprise-data-agent-harness.git
+cd enterprise-data-agent-harness
+git rev-parse HEAD
+uv sync --locked --extra dev --python 3.12
+pnpm --dir frontend install --frozen-lockfile
+pnpm --dir frontend build
+$env:ANALYTICS_AGENT_CONFIG_DIR = Join-Path (Get-Location) 'data/harness-config'
+$env:DATABASE_URL = 'sqlite+aiosqlite:///./data/course-harness.db'
+uv run --frozen analytics-agent bootstrap
+uv run --frozen uvicorn analytics_agent.main:app --host 127.0.0.1 --port 8100 --workers 1
+```
+
+On Linux or macOS, use the same commands and replace the two PowerShell environment assignments with these shell commands.
+
+```bash
+export ANALYTICS_AGENT_CONFIG_DIR="$PWD/data/harness-config"
+export DATABASE_URL='sqlite+aiosqlite:///./data/course-harness.db'
+```
+
+Open <http://127.0.0.1:8100> on the same computer. Dismiss the setup wizard for fixed cases. In **批量评测 · Sprint 2**, select the eight-case mixed set and run it. The expected summary is 3 passed, 2 failed and 3 unverifiable. Open `total-one-cent-error` to inspect the 11001-cent claim, its 11000-cent SQL result and the linked evidence. For model-generated claims, configure a provider in Settings first. To check persistence, press Ctrl+C and rerun the final command in the same window. Use `git rev-parse HEAD` to identify the revision in your acceptance record. See the [traceability guide](docs/traceability-user-guide.md) for report export and inspection. The [Sprint 3 delivery checklist](docs/process/sprint3-delivery-checklist.md) lists the evidence and documents needed for handoff.
+
+## Upstream Analytics Agent quickstart
+
+### Option A — upstream PyPI release (pip / uvx)
 
 > Requires Python 3.11+
 
@@ -92,23 +118,23 @@ The script starts a local DataHub instance, loads the Fiction Retail sample data
 
 ## Manual setup (for contributors / development)
 
-> This section is for hacking on the agent itself. For everyday use, `analytics-agent quickstart` is simpler.
+> For a course demonstration, follow [Run the course Harness from source](#run-the-course-harness-from-source). The commands below use Make for local development.
 
-**Prerequisites:** [`uv`](https://docs.astral.sh/uv/getting-started/installation/), [`mise`](https://mise.jdx.dev/getting-started.html) (manages Node + pnpm), Python 3.11+
+**Prerequisites:** [`uv`](https://docs.astral.sh/uv/getting-started/installation/), [`mise`](https://mise.jdx.dev/getting-started.html) (manages Node), pnpm, Make and Python 3.11+
 
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/datahub-project/analytics-agent.git
-cd analytics-agent
-mise install       # installs Node 22 + pnpm (reads .mise.toml)
+git clone https://github.com/NobunagaK/enterprise-data-agent-harness.git
+cd enterprise-data-agent-harness
+mise install       # installs Node 22 (reads .mise.toml)
 make install       # uv sync + pnpm install
 make start         # builds frontend, starts backend at :8100
 ```
 
 Open **http://localhost:8100** — a setup wizard handles the LLM key and connections on first run.
 
-> **Without `make`:** `uv sync && cd frontend && pnpm install && pnpm build && cd .. && uv run uvicorn analytics_agent.main:app --port 8100`
+For setup without Make, use the [course Harness commands](#run-the-course-harness-from-source) above.
 
 ### First-time setup
 
@@ -425,6 +451,7 @@ docker run -p 8100:8100 --env-file .env analytics-agent
 
 ```bash
 cd frontend && pnpm build && cd ..
+uv run analytics-agent bootstrap
 uv run uvicorn analytics_agent.main:app --host 0.0.0.0 --port 8100
 ```
 
@@ -475,6 +502,10 @@ User message → POST /api/conversations/{id}/messages
 </p>
 
 ## Sprint 2 Harness 运行说明（中文）
+
+课程演示请使用[本组仓库的安装命令](#run-the-course-harness-from-source)。在 Windows PowerShell 按顺序克隆本组仓库、安装锁定依赖、构建前端、设置数据库路径、执行 `analytics-agent bootstrap` 迁移，然后启动服务。`git rev-parse HEAD` 输出的提交号可记入验收记录。
+
+在同一台电脑打开 <http://127.0.0.1:8100>。固定测试可以跳过模型设置。在“批量评测 · Sprint 2”选择含 8 条案例的混合集合并运行，应得到 3 通过、2 失败、3 无法验证。打开 `total-one-cent-error` 可核对 11001 分的声明、SQL 结果 11000 分和关联证据。真实模型模式需要先在 Settings 配置供应商。在同一窗口按 Ctrl+C，再执行最后一条启动命令，即可用原数据库重新打开历史报告。导出步骤见[追溯使用说明](docs/traceability-user-guide.md)。尚待完成的验收与课程材料见 [Sprint 3 交付清单](docs/process/sprint3-delivery-checklist.md)。
 
 使用本仓库的 Harness 时，每个数据库只支持一个服务进程和一个应用副本；
 启动命令显式指定 `--workers 1`，评测时避免自动重载。活动批次登记只在本进程内有效，

@@ -228,6 +228,18 @@ def test_factories_cover_all_providers():
     assert set(_FACTORIES) == EXPECTED_PROVIDERS
 
 
+async def test_mock_mode_greeting_skips_external_provider(monkeypatch):
+    from analytics_agent.api import get_greeting
+    from analytics_agent.config import settings
+
+    monkeypatch.setenv("MOCK_LLM", "1")
+    factory = MagicMock(side_effect=AssertionError("External provider reached"))
+    monkeypatch.setitem(_FACTORIES, settings.llm_provider, factory)
+
+    assert await get_greeting("Alex", "morning") == {"greeting": ""}
+    factory.assert_not_called()
+
+
 @patch("analytics_agent.agent.llm.settings")
 def test_make_llm_anthropic_calls_correct_factory(mock_settings):
     mock_settings.llm_provider = "anthropic"

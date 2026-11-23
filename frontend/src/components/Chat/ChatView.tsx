@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from "react";
-import type { MessageRecord, UsagePayload, TurnUsage } from "@/types";
+import type { UsagePayload, TurnUsage } from "@/types";
 import { streamMessage, reattachStream } from "@/api/stream";
 import { generateTitle, getConversation, createConversation } from "@/api/conversations";
 import { Download, X } from "lucide-react";
@@ -10,11 +10,14 @@ import { MessageInput } from "./MessageInput";
 import { EngineSelector } from "./EngineSelector";
 import { WelcomeView } from "./WelcomeView";
 import { ContextStatusBar } from "./ContextStatusBar";
-import type { UIMessage } from "@/types";
 import { buildUiMessages } from "@/lib/buildUiMessages";
 import { v4 as uuidv4 } from "uuid";
 import { HarnessCheck } from "./HarnessCheck";
 import { HarnessBatchPanel } from "./HarnessBatchPanel";
+
+function isCurrent(conversationId: string, controller: AbortController) {
+  return !controller.signal.aborted && useConversationsStore.getState().activeId === conversationId;
+}
 
 export function ChatView() {
   const {
@@ -32,7 +35,6 @@ export function ChatView() {
     setStreaming,
     updateConversationTitle,
     conversations,
-    usageTotals,
     setUsageTotals,
     addUsage,
     attachUsageToMessage,
@@ -45,10 +47,19 @@ export function ChatView() {
   const chartErrorRetried = useRef(false);
   const streamAbortRef = useRef<AbortController | null>(null);
 
+  const handleSend = useCallback(sendToConversation, [
+    addUsage, appendMessage, appendStreamingText, attachUsageToMessage, finalizeStreaming,
+    markCurrentAsThinking, resetStreamingText, setFinalMsgTurnUsage, setStreaming,
+    updateConversationTitle,
+  ]);
+
   // Load conversation history when activeId changes; fire pending first message
   useEffect(() => {
-    streamAbortRef.current?.abort();
-    streamAbortRef.current = null;
+    const abortCurrent = () => {
+      streamAbortRef.current?.abort();
+      streamAbortRef.current = null;
+      setStreaming(false);
+    };
     if (!activeId) {
       setMessages([]);
       return;
@@ -60,14 +71,16 @@ export function ChatView() {
       const text = pendingFirstMessage.current;
       pendingFirstMessage.current = null;
       handleSend(text);
-      return;
+      return abortCurrent;
     }
 
     const snapId = activeId;
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
 
     getConversation(snapId).then(async (detail) => {
       // Bail if the user has already switched to a different conversation
-      if (activeId !== snapId) return;
+      if (!isCurrent(snapId, controller)) return;
 
       if (!detail.is_streaming) {
         const { messages: uiMsgs, totals } = buildUiMessages(detail.messages);
@@ -92,20 +105,14 @@ export function ChatView() {
 
       setStreaming(true);
       resetStreamingText();
-      const controller = new AbortController();
-      streamAbortRef.current = controller;
 
-      let aborted = false;
       try {
         const stream = reattachStream(snapId, controller.signal);
         let result = await stream.next();
         const reattachTurnUsage: TurnUsage = { input_tokens: 0, output_tokens: 0, total_tokens: 0, cache_read_tokens: 0, cache_creation_tokens: 0, calls: 0 };
         while (!result.done) {
           // Bail if the user switched away while we were awaiting
-          if (activeId !== snapId) {
-            controller.abort();
-            return;
-          }
+          if (!isCurrent(snapId, controller)) return;
           const event = result.value;
           if (event.event === "TEXT") {
             appendStreamingText((event.payload as { text: string }).text);
@@ -147,10 +154,7 @@ export function ChatView() {
           result = await stream.next();
         }
       } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") {
-          aborted = true;
-          return;
-        }
+        if (!isCurrent(snapId, controller)) return;
         appendMessage({
           id: uuidv4(),
           event_type: "ERROR",
@@ -158,13 +162,12 @@ export function ChatView() {
           payload: { error: String(err) },
         });
       } finally {
-        streamAbortRef.current = null;
-        setStreaming(false);
-        if (!aborted && activeId === snapId) {
+        if (isCurrent(snapId, controller)) {
+          setStreaming(false);
           // Reload full history from DB to catch anything committed after the
           // initial fetch, then generate/update the title.
           getConversation(snapId).then((refreshed) => {
-            if (activeId !== snapId) return;
+            if (!isCurrent(snapId, controller)) return;
             const { messages: uiMsgs, totals } = buildUiMessages(refreshed.messages);
             setMessages(uiMsgs);
             setUsageTotals(totals);
@@ -174,11 +177,22 @@ export function ChatView() {
           }).catch(() => {});
         }
       }
+    }).catch((err) => {
+      if (isCurrent(snapId, controller)) {
+        appendMessage({
+          id: uuidv4(),
+          event_type: "ERROR",
+          role: "assistant",
+          payload: { error: String(err) },
+        });
+      }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // Other references (setMessages, appendMessage, etc.) are stable Zustand store
-  // actions — their identity never changes, so only activeId needs to re-trigger.
-  }, [activeId]);
+    return abortCurrent;
+  }, [
+    activeId, addUsage, appendMessage, appendStreamingText, attachUsageToMessage, handleSend,
+    markCurrentAsThinking, resetStreamingText, setFinalMsgTurnUsage, setMessages, setStreaming,
+    setUsageTotals, updateConversationTitle,
+  ]);
 
   const [showReasoning, setShowReasoning] = useState(true);
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -217,7 +231,8 @@ export function ChatView() {
     );
   }, [activeConv?.title]);
 
-  const handleSend = async (text: string) => {
+  async function sendToConversation(text: string) {
+    const { activeId, isStreaming } = useConversationsStore.getState();
     if (!activeId || isStreaming) return;
 
     // Append user message immediately
@@ -232,14 +247,15 @@ export function ChatView() {
     resetStreamingText(); // new turn — reset so TEXT goes to a fresh message
 
     const conversationId = activeId;
-    let aborted = false;
+    streamAbortRef.current?.abort();
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
     try {
-      const controller = new AbortController();
-      streamAbortRef.current = controller;
       const stream = streamMessage(conversationId, text, controller.signal);
       let result = await stream.next();
       const sendTurnUsage: TurnUsage = { input_tokens: 0, output_tokens: 0, total_tokens: 0, cache_read_tokens: 0, cache_creation_tokens: 0, calls: 0 };
       while (!result.done) {
+        if (!isCurrent(conversationId, controller)) return;
         const event = result.value;
         if (event.event === "TEXT") {
           appendStreamingText((event.payload as { text: string }).text);
@@ -284,10 +300,7 @@ export function ChatView() {
         result = await stream.next();
       }
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        aborted = true;
-        return;
-      }
+      if (!isCurrent(conversationId, controller)) return;
       appendMessage({
         id: uuidv4(),
         event_type: "ERROR",
@@ -295,21 +308,20 @@ export function ChatView() {
         payload: { error: String(err) },
       });
     } finally {
-      streamAbortRef.current = null;
-      finalizeStreaming();
-      setStreaming(false);
-      if (!aborted) {
+      if (isCurrent(conversationId, controller)) {
+        finalizeStreaming();
+        setStreaming(false);
         // Fire-and-forget title generation after the turn completes
         generateTitle(conversationId).then((r) => {
           if (r.updated) updateConversationTitle(conversationId, r.title);
         }).catch(() => {});
       }
     }
-  };
+  }
 
   const handleWelcomeSend = async (text: string, engineName: string) => {
-    pendingFirstMessage.current = text;
     const conv = await createConversation(engineName);
+    pendingFirstMessage.current = text;
     addConversation(conv);
     setActiveId(conv.id);
   };
